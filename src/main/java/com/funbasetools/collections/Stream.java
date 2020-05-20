@@ -108,8 +108,31 @@ public interface Stream<T> extends Iterable<T> {
         return nthNot(0, predicate);
     }
 
-    default <R> Stream<R> flatMap(final Function<T, ? extends Iterable<R>> function) {
-        return Streams.withFlatMapFunction(this, function);
+    default <R> Stream<R> flatMap(final Function<T, ? extends Iterable<R>> f) {
+
+        final Stream<Stream<R>> mappedStream = map(it -> Streams.of(f.apply(it)));
+
+        final Stream<Pair<T, Stream<R>>> pairedStream = zip(mappedStream)
+            .dropWhile(pair -> pair.getRight().isEmpty());
+
+        return pairedStream
+            .getHeadOption()
+            .map(pair -> {
+                final Supplier<Stream<R>> getTailFunc = () -> pairedStream
+                    .getTail()
+                    .unzip(p -> p)
+                    .getLeft()
+                    .flatMap(f);
+
+                final R head = pair.getRight().getHeadOption().get();
+                final Stream<R> tail = pair
+                    .getRight()
+                    .getTail()
+                    .append(getTailFunc);
+
+                return Streams.of(head, tail);
+            })
+            .orElse(Streams.emptyStream());
     }
 
     default <R> R foldLeft(final R initialValue, final BiFunction<R, T, R> function) {
@@ -242,6 +265,15 @@ public interface Stream<T> extends Iterable<T> {
         );
     }
 
+    default <A, B> Pair<Stream<A>, Stream<B>> unzip(final Function<T, Pair<A, B>> f) {
+        final Stream<Pair<A, B>> pairStream = map(f);
+
+        return Pair.of(
+            pairStream.map(Pair::getLeft),
+            pairStream.map(Pair::getRight)
+        );
+    }
+
     default <W> Stream<Pair<T, W>> zip(Stream<W> other) {
         return Streams.zipStreams(this, other);
     }
@@ -333,8 +365,8 @@ public interface Stream<T> extends Iterable<T> {
 
         public Stream<T> build() {
             Stream<T> stream = Streams.emptyStream();
-            for (T it: stackedItems) {
-                stream = stream.prepend(it);
+            while (!stackedItems.empty()) {
+                stream = stream.prepend(stackedItems.pop());
             }
 
             return stream;

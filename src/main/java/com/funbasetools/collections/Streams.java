@@ -47,10 +47,15 @@ public final class Streams {
     }
 
     public static <T> Stream<T> of(final Iterable<T> iterable) {
+        if (iterable instanceof Stream) {
+            return (Stream<T>) iterable;
+        }
+
         final Stream.Builder<T> builder = new Stream.Builder<>();
         for (T it: iterable) {
             builder.append(it);
         }
+
         return builder.build();
     }
 
@@ -116,15 +121,6 @@ public final class Streams {
     ) {
         return baseStream.nonEmpty()
             ? new MappedStream<>(baseStream, mapFunction)
-            : emptyStream();
-    }
-
-    public static <T, R> Stream<R> withFlatMapFunction(
-        final Stream<T> baseStream,
-        final Function<T, ? extends Iterable<R>> mapFunction
-    ) {
-        return baseStream.nonEmpty()
-            ? new FlatMappedStream<>(baseStream, mapFunction)
             : emptyStream();
     }
 
@@ -418,44 +414,6 @@ public final class Streams {
         @Override
         public Knowable<Long> size() {
             return size;
-        }
-    }
-
-    private static final class FlatMappedStream<T, R> implements Stream<R> {
-
-        private final Lazy<Optional<R>> lazyHead;
-        private final Lazy<Stream<R>> lazyTail;
-
-        private FlatMappedStream(final Stream<T> baseStream, final Function<T, ? extends Iterable<R>> mapFunction) {
-            final Lazy<Stream<R>> lazyFirstStream = Lazy.of(() -> {
-                final Iterable<R> firstIterable = baseStream.getHeadOption()
-                    .<Iterable<R>>map(mapFunction)
-                    .orElse(Collections.emptyList());
-
-                return of(firstIterable);
-            });
-
-            lazyHead = Lazy.of(() -> lazyFirstStream.get().getHeadOption());
-            lazyTail = Lazy.of(() ->
-                lazyFirstStream.get()
-                    .getTail()
-                    .append(() -> withFlatMapFunction(baseStream.getTail(), mapFunction))
-            );
-        }
-
-        @Override
-        public Optional<R> getHeadOption() {
-            return lazyHead.get();
-        }
-
-        @Override
-        public Stream<R> getTail() {
-            return lazyTail.get();
-        }
-
-        @Override
-        public Knowable<Long> size() {
-            return Knowable.unknown();
         }
     }
 
