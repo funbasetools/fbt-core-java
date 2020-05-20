@@ -1,6 +1,8 @@
 package com.funbasetools.collections;
 
 import com.funbasetools.certainties.Knowable;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -123,6 +125,22 @@ public class StreamTest {
         assertArrayEquals(
             new Object[]{ 3, 9, 27, 6, 36, 216 },
             flatMappedStream.take(6).toArray()
+        );
+    }
+
+    @Test
+    public void testZipping() {
+        // given
+        final Stream<Integer> aStream = Streams.from(1);
+        final Stream<Character> bStream = Streams.of(ArrayUtils.toObject("abcdefghijklmnopqrstuvwxyz".toCharArray()));
+
+        // when
+        final Stream<Pair<Integer, Character>> pairedStream = aStream.zip(bStream);
+
+        // then
+        assertArrayEquals(
+            new Object[] { Pair.of(1, 'a'), Pair.of(2, 'b'), Pair.of(3, 'c') },
+            pairedStream.take(3).toArray()
         );
     }
 
