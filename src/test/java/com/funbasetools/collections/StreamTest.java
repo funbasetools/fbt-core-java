@@ -3,6 +3,11 @@ package com.funbasetools.collections;
 import com.funbasetools.certainties.Knowable;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Function;
+
 import static org.junit.Assert.*;
 
 public class StreamTest {
@@ -70,6 +75,55 @@ public class StreamTest {
         assertEquals("[ 1, 2, 3 ]", stream1.toString());
         assertEquals(Knowable.known(4L), stream2.size());
         assertEquals("[ 0, 1, 2, ...]", stream2.toString());
+    }
+
+    @Test
+    public void testFiltering() {
+        // given
+        final Stream<Integer> stream = Streams.from(1);
+
+        // when
+        final Stream<Integer> filteredStream = stream.filter(v -> v % 2 == 0);
+
+        // then
+        assertArrayEquals(
+            new Object[]{ 2, 4, 6, 8, 10 },
+            filteredStream.take(5).toArray()
+        );
+    }
+
+    @Test
+    public void testMapping() {
+        // given
+        final Stream<Integer> stream = Streams.from(1);
+
+        // when
+        final Stream<Double> mappedStream = stream.map(v -> v * 5 / 2.0);
+
+        // then
+        assertArrayEquals(
+            new Object[]{ 2.5, 5.0, 7.5, 10.0, 12.5 },
+            mappedStream.take(5).toArray()
+        );
+    }
+
+    @Test
+    public void testFlatMapping() {
+        // given
+        final Stream<Integer> stream = Streams.from(1);
+        final Function<Integer, List<Integer>> f = v ->
+            (v % 3 == 0)
+                ? Arrays.asList(v, v * v, v * v * v)
+                : Collections.emptyList();
+
+        // when
+        final Stream<Integer> flatMappedStream = stream.flatMap(f); // filter to get even numbers
+
+        // then
+        assertArrayEquals(
+            new Object[]{ 3, 9, 27, 6, 36, 216 },
+            flatMappedStream.take(6).toArray()
+        );
     }
 
     @Test
