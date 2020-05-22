@@ -2,7 +2,7 @@ package com.funbasetools.certainties;
 
 import org.junit.Test;
 
-import static com.funbasetools.certainties.Knowable.*;
+import static com.funbasetools.FBT.*;
 import static org.junit.Assert.*;
 
 public class KnowableTest {
@@ -291,35 +291,35 @@ public class KnowableTest {
     @Test
     public void testIsKnownThatIsLessOrEqualsTo() {
         assertTrue(
-            isKnownThatIsLessOrEqualsTo(known(10), 10)
+            Knowable.isKnownThatIsLessOrEqualsTo(known(10), 10)
         );
         assertTrue(
-            isKnownThatIsLessOrEqualsTo(known(9), 10)
+            Knowable.isKnownThatIsLessOrEqualsTo(known(9), 10)
         );
         assertTrue(
-            isKnownThatIsLessOrEqualsTo(atMost(10), 10)
+            Knowable.isKnownThatIsLessOrEqualsTo(atMost(10), 10)
         );
         assertTrue(
-            isKnownThatIsLessOrEqualsTo(atMost(9), 10)
+            Knowable.isKnownThatIsLessOrEqualsTo(atMost(9), 10)
         );
 
         assertFalse(
-            isKnownThatIsLessOrEqualsTo(unknown(), 10)
+            Knowable.isKnownThatIsLessOrEqualsTo(unknown(), 10)
         );
         assertFalse(
-            isKnownThatIsLessOrEqualsTo(known(11), 10)
+            Knowable.isKnownThatIsLessOrEqualsTo(known(11), 10)
         );
         assertFalse(
-            isKnownThatIsLessOrEqualsTo(atMost(11), 10)
+            Knowable.isKnownThatIsLessOrEqualsTo(atMost(11), 10)
         );
         assertFalse(
-            isKnownThatIsLessOrEqualsTo(atLeast(9), 10)
+            Knowable.isKnownThatIsLessOrEqualsTo(atLeast(9), 10)
         );
         assertFalse(
-            isKnownThatIsLessOrEqualsTo(atLeast(10), 10)
+            Knowable.isKnownThatIsLessOrEqualsTo(atLeast(10), 10)
         );
         assertFalse(
-            isKnownThatIsLessOrEqualsTo(atLeast(11), 10)
+            Knowable.isKnownThatIsLessOrEqualsTo(atLeast(11), 10)
         );
     }
 }

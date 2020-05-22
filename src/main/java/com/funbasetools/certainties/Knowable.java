@@ -80,9 +80,11 @@ public interface Knowable<T> {
     @SafeVarargs
     static <T> Knowable<T> getMostCertain(Knowable<T>... knowableArray) {
         Knowable<T> mostCertain = Knowable.unknown();
-        for (Knowable<T> knowable: knowableArray) {
-            if (knowable.isMoreCertainThan(mostCertain)) {
-                mostCertain = knowable;
+        if (knowableArray != null) {
+            for (Knowable<T> knowable: knowableArray) {
+                if (knowable != null && knowable.isMoreCertainThan(mostCertain)) {
+                    mostCertain = knowable;
+                }
             }
         }
 

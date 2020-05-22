@@ -1,6 +1,6 @@
 package com.funbasetools.security.hashes;
 
-import com.funbasetools.text.HexText;
+import com.funbasetools.codecs.text.HexText;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
