@@ -1,4 +1,4 @@
-package com.funbasetools.text;
+package com.funbasetools.codecs.text;
 
 import java.util.Base64;
 

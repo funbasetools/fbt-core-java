@@ -6,10 +6,9 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigInteger;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import java.util.function.*;
+
+import static com.funbasetools.FBT.*;
 
 public final class Streams {
 
@@ -29,18 +28,22 @@ public final class Streams {
     }
 
     public static <T> Stream<T> of(T head, Lazy<Stream<T>> lazyTail) {
-        return of(head, lazyTail, Knowable.unknown());
+        return of(head, lazyTail, unknown());
     }
 
     public static <T> Stream<T> of(T head, Supplier<Stream<T>> getTailFunc) {
-        return of(head, getTailFunc, Knowable.atLeast(1L));
+        return of(head, getTailFunc, atLeast(1L));
     }
 
     @SafeVarargs
     public static <A> Stream<A> of(final A... array) {
         Stream<A> stream = emptyStream();
-        for (int idx = array.length - 1; idx >= 0; idx--) {
-            stream = of(array[idx], stream);
+        if (array != null) {
+            for (int idx = array.length - 1; idx >= 0; idx--) {
+                if (array[idx] != null) {
+                    stream = of(array[idx], stream);
+                }
+            }
         }
 
         return stream;
@@ -57,6 +60,14 @@ public final class Streams {
         }
 
         return builder.build();
+    }
+
+    public static Stream<Character> of(final CharSequence charSequence) {
+        if (charSequence == null) {
+            return emptyStream();
+        }
+
+        return of(charSequence, 0);
     }
 
     public static Stream<Integer> range(final int from, final int to) {
@@ -102,7 +113,7 @@ public final class Streams {
     }
 
     public static <T> Stream<T> computeWhile(final T initial, Function<T, T> f, Predicate<T> p) {
-        return computeWhile(initial, f, p, Knowable.unknown());
+        return computeWhile(initial, f, p, unknown());
     }
 
     public static <T> Stream<T> withFilter(
@@ -135,17 +146,17 @@ public final class Streams {
 
     // Private methods
 
-    public static <T> Stream<T> of(T head, Lazy<Stream<T>> lazyTail, Knowable<Long> size) {
+    public static <T> Stream<T> of(final T head, final Lazy<Stream<T>> lazyTail, final Knowable<Long> size) {
         return Optional
             .ofNullable(head)
             .map(h -> LazyTailStream.create(h, lazyTail, size))
             .orElseGet(lazyTail::get);
     }
 
-    private static <T> Stream<T> of(T head, Supplier<Stream<T>> getTailFunc, Knowable<Long> size) {
+    private static <T> Stream<T> of(final T head, final Supplier<Stream<T>> getTailFunc, final Knowable<Long> size) {
         return Optional
             .ofNullable(head)
-            .map(h -> LazyTailStream.create(h, Lazy.of(getTailFunc), size))
+            .map(h -> LazyTailStream.create(h, lazy(getTailFunc), size))
             .orElseGet(getTailFunc);
     }
 
@@ -158,6 +169,15 @@ public final class Streams {
         return predicate.test(initial)
             ? of(initial, () -> computeWhile(f.apply(initial), f, predicate, size.transform(s -> s - 1)), size)
             : emptyStream();
+    }
+
+    private static Stream<Character> of(final CharSequence charSequence, final int atPosition) {
+        final long length = charSequence.length();
+        if (atPosition >= length) {
+            return emptyStream();
+        }
+
+        return of(charSequence.charAt(atPosition), () -> of(charSequence, atPosition + 1), known(length));
     }
 
     // Private types
@@ -244,7 +264,7 @@ public final class Streams {
 
         protected NonEmptyStream(final T head, final Knowable<Long> size) {
             this.head = head;
-            this.size = size.orElse(Knowable.atLeast(1L));
+            this.size = size.orElse(atLeast(1L));
         }
 
         public T getHead() {
@@ -304,7 +324,7 @@ public final class Streams {
                 tail
                     .size()
                     .transform(s -> s + 1)
-                    .orElse(Knowable.atLeast(1L))
+                    .orElse(atLeast(1L))
             );
             this.tail = tail;
         }
@@ -341,7 +361,7 @@ public final class Streams {
                 .getIfComputed()
                 .map(Stream::size)
                 .map(s -> s.transform(v -> v + 1))
-                .orElse(Knowable.atLeast(1L));
+                .orElse(atLeast(1L));
 
             return Knowable.getMostCertain(initialEstimate, possibleNewEstimate);
         }
@@ -355,7 +375,7 @@ public final class Streams {
 
         private FilteredStream(final Stream<T> baseStream, final Predicate<T> predicate, final boolean isTrue) {
 
-            final Lazy<Stream<T>> streamWithFirstMatch = Lazy.of(() ->
+            final Lazy<Stream<T>> streamWithFirstMatch = lazy(() ->
                 baseStream.foldLeftWhile(
                     baseStream,
                     (r, it) -> predicate.test(it) != isTrue,
@@ -363,12 +383,12 @@ public final class Streams {
                 )
             );
 
-            lazyHead = Lazy.of(() -> streamWithFirstMatch.get().getHeadOption());
-            lazyTail = Lazy.of(() -> withFilter(streamWithFirstMatch.get().getTail(), predicate, isTrue));
+            lazyHead = lazy(() -> streamWithFirstMatch.get().getHeadOption());
+            lazyTail = lazy(() -> withFilter(streamWithFirstMatch.get().getTail(), predicate, isTrue));
 
             final Knowable<Long> baseStreamSize = baseStream.size();
             this.size = baseStreamSize.isKnown()
-                    ? Knowable.atMost(baseStreamSize.get())
+                    ? atMost(baseStreamSize.get())
                     : baseStreamSize;
         }
 
@@ -395,8 +415,8 @@ public final class Streams {
         private final Knowable<Long> size;
 
         private MappedStream(final Stream<T> baseStream, final Function<T, R> mapFunction) {
-            this.lazyHead = Lazy.of(() -> baseStream.getHeadOption().map(mapFunction));
-            lazyTail = Lazy.of(() -> withMapFunction(baseStream.getTail(), mapFunction));
+            this.lazyHead = lazy(() -> baseStream.getHeadOption().map(mapFunction));
+            lazyTail = lazy(() -> withMapFunction(baseStream.getTail(), mapFunction));
 
             this.size = baseStream.size();
         }

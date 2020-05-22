@@ -6,6 +6,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.*;
 import java.util.function.*;
 
+import static com.funbasetools.FBT.asStream;
+import static com.funbasetools.FBT.unknown;
+
 public interface Stream<T> extends Iterable<T> {
 
     Optional<T> getHeadOption();
@@ -13,7 +16,7 @@ public interface Stream<T> extends Iterable<T> {
     Stream<T> getTail();
 
     default Knowable<Long> size() {
-        return Knowable.unknown();
+        return unknown();
     }
 
     default boolean isEmpty() {
@@ -110,7 +113,7 @@ public interface Stream<T> extends Iterable<T> {
 
     default <R> Stream<R> flatMap(final Function<T, ? extends Iterable<R>> f) {
 
-        final Stream<Stream<R>> mappedStream = map(it -> Streams.of(f.apply(it)));
+        final Stream<Stream<R>> mappedStream = map(it -> asStream(f.apply(it)));
 
         final Stream<Pair<T, Stream<R>>> pairedStream = zip(mappedStream)
             .dropWhile(pair -> pair.getRight().isEmpty());
