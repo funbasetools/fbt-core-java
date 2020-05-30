@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.funbasetools</groupId>
-    <artifactId>fbt-java-core</artifactId>
-    <version>0.1.0</version>
+    <artifactId>fbt-core-java</artifactId>
+    <version>0.1.1</version>
     <packaging>jar</packaging>
 
     <properties>
