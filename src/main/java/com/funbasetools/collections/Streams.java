@@ -71,8 +71,8 @@ public final class Streams {
     }
 
     public static Stream<Integer> range(final int from, final int to) {
-        final long size = StrictMath.max(0L, to - from + 1L);
-        return computeWhile(from, i -> i + 1, i -> i <= to, Knowable.known(size));
+        final int size = StrictMath.max(0, to - from + 1);
+        return computeWhile(from, i -> i + 1, i -> i <= to, Knowable.known((long)size));
     }
 
     public static Stream<Long> longRange(final long from, final long to) {
