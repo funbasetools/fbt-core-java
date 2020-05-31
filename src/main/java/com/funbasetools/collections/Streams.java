@@ -12,6 +12,8 @@ import static com.funbasetools.FBT.*;
 
 public final class Streams {
 
+    private Streams() { }
+
     public static <T> Stream<T> emptyStream() {
         return EmptyStream.getInstance();
     }
@@ -71,8 +73,8 @@ public final class Streams {
     }
 
     public static Stream<Integer> range(final int from, final int to) {
-        final long size = StrictMath.max(0L, to - from + 1L);
-        return computeWhile(from, i -> i + 1, i -> i <= to, Knowable.known(size));
+        final int size = StrictMath.max(0, to - from + 1);
+        return computeWhile(from, i -> i + 1, i -> i <= to, Knowable.known((long)size));
     }
 
     public static Stream<Long> longRange(final long from, final long to) {
@@ -295,14 +297,14 @@ public final class Streams {
         public String toString() {
 
             final int maxCountToShow = 3;
-            final Knowable<Long> size = size();
+            final Knowable<Long> currentSize = size();
 
-            final int firstItemsCount = (int)StrictMath.min(size.orElse(1L), maxCountToShow);
+            final int firstItemsCount = (int)StrictMath.min(currentSize.orElse(1L), maxCountToShow);
             final List<String> firstItemList = this
                 .map(Objects::toString)
                 .take(firstItemsCount);
 
-            final String wholeString = Knowable.isKnownThatIsLessOrEqualsTo(size, firstItemsCount)
+            final String wholeString = Knowable.isKnownThatIsLessOrEqualsTo(currentSize, firstItemsCount)
                 ? "[ %s ]"
                 : "[ %s, ...]";
 

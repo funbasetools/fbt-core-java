@@ -9,6 +9,8 @@ import java.util.function.Supplier;
 
 public final class FBT {
 
+    private FBT() { }
+
     // Basic
 
     public static <T> Lazy<T> lazy(final Supplier<T> supplier) {
