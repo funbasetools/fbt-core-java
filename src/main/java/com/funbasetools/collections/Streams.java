@@ -12,6 +12,8 @@ import static com.funbasetools.FBT.*;
 
 public final class Streams {
 
+    private Streams() { }
+
     public static <T> Stream<T> emptyStream() {
         return EmptyStream.getInstance();
     }

@@ -5,6 +5,8 @@ import java.math.BigInteger;
 
 public final class Numbers {
 
+    private Numbers() { }
+
     public static <N extends Number> int compare(final N a, final N b) {
         if (a instanceof Integer) {
             return Integer.compare(a.intValue(), b.intValue());

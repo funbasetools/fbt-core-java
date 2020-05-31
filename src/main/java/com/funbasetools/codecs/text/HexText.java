@@ -2,6 +2,8 @@ package com.funbasetools.codecs.text;
 
 public final class HexText {
 
+    private HexText() { }
+
     public static TextEncoder getEncoder() {
         return new HexEncoder();
     }
