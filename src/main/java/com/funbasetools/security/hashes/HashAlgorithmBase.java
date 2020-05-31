@@ -2,7 +2,6 @@ package com.funbasetools.security.hashes;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.security.MessageDigest;
 
 public abstract class HashAlgorithmBase implements HashAlgorithm {
 
