@@ -8,6 +8,30 @@
     <artifactId>fbt-core-java</artifactId>
     <version>0.1.1</version>
     <packaging>jar</packaging>
+    <name>FBT Core Java</name>
+    <description>Foundational Java Library</description>
+    <url>https://github.com/funbasetools/fbt-core-java</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://github.com/funbasetools/fbt-core-java/blob/master/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <id>hdkrus</id>
+            <name>Roberto Martinez</name>
+            <organization>FunBaseTools</organization>
+            <organizationUrl>https://funbasetools.com</organizationUrl>
+            <roles>
+                <role>owner</role>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+    </developers>
 
     <properties>
         <java.version>1.8</java.version>
