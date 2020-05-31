@@ -120,21 +120,24 @@ public interface Stream<T> extends Iterable<T> {
 
         return pairedStream
             .getHeadOption()
-            .map(pair -> {
-                final Supplier<Stream<R>> getTailFunc = () -> pairedStream
-                    .getTail()
-                    .unzip(p -> p)
-                    .getLeft()
-                    .flatMap(f);
+            .map(pair -> pair
+                .getRight()
+                .getHeadOption()
+                .map(head -> {
+                    final Supplier<Stream<R>> getTailFunc = () -> pairedStream
+                        .getTail()
+                        .unzip(p -> p)
+                        .getLeft()
+                        .flatMap(f);
 
-                final R head = pair.getRight().getHeadOption().get();
-                final Stream<R> tail = pair
-                    .getRight()
-                    .getTail()
-                    .append(getTailFunc);
+                    final Stream<R> tail = pair
+                        .getRight()
+                        .getTail()
+                        .append(getTailFunc);
 
-                return Streams.of(head, tail);
-            })
+                    return Streams.of(head, tail);
+                })
+                .orElse(Streams.emptyStream()))
             .orElse(Streams.emptyStream());
     }
 
