@@ -243,7 +243,7 @@ public interface Stream<T> extends Iterable<T> {
 
     default List<T> take(final int count) {
         return foldLeftWhile(
-            new ArrayList<>(count),
+            new ArrayList<>(StrictMath.min(100, count)),
             (r, it) -> r.size() < count,
             (r, it) -> {
                 r.add(it);

@@ -45,6 +45,25 @@ public class StreamTest {
     }
 
     @Test
+    public void testBuilder() {
+        // given
+        final Stream.Builder<Integer> builder = new Stream.Builder<>();
+
+        // when
+        final Stream<Integer> stream = builder
+            .append(1)
+            .append(2)
+            .append(3)
+            .build();
+
+        // then
+        assertArrayEquals(
+            new Object[] { 1, 2, 3 },
+            stream.take(Integer.MAX_VALUE).toArray()
+        );
+    }
+
+    @Test
     public void testSingletonStream() {
         assertEquals(known(1L), Streams.singleton("abc").size());
         assertEquals("[ abc ]", Streams.singleton("abc").toString());
