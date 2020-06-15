@@ -1,23 +1,17 @@
 package com.funbasetools.collections;
 
-import com.funbasetools.certainties.Knowable;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.function.*;
 
-import static com.funbasetools.FBT.asStream;
-import static com.funbasetools.FBT.unknown;
+import static com.funbasetools.collections.Streams.of;
 
 public interface Stream<T> extends Iterable<T> {
 
     Optional<T> getHeadOption();
 
     Stream<T> getTail();
-
-    default Knowable<Long> size() {
-        return unknown();
-    }
 
     default boolean isEmpty() {
         return !nonEmpty();
@@ -89,7 +83,7 @@ public interface Stream<T> extends Iterable<T> {
 
     default boolean existIf(final Predicate<T> predicate, boolean isTrue) {
         return foldLeftWhile(
-            false,
+            !isTrue,
             (r, it) -> r != isTrue,
             (r, it) -> predicate.test(it) == isTrue
         );
@@ -113,7 +107,7 @@ public interface Stream<T> extends Iterable<T> {
 
     default <R> Stream<R> flatMap(final Function<T, ? extends Iterable<R>> f) {
 
-        final Stream<Stream<R>> mappedStream = map(it -> asStream(f.apply(it)));
+        final Stream<Stream<R>> mappedStream = map(it -> of(f.apply(it)));
 
         final Stream<Pair<T, Stream<R>>> pairedStream = zip(mappedStream)
             .dropWhile(pair -> pair.getRight().isEmpty());
@@ -245,9 +239,20 @@ public interface Stream<T> extends Iterable<T> {
         return foldLeftWhile(
             new ArrayList<>(StrictMath.min(100, count)),
             (r, it) -> r.size() < count,
-            (r, it) -> {
+            (r, it) ->  {
                 r.add(it);
                 return r;
+            }
+        );
+    }
+
+    default Pair<List<T>, Stream<T>> takeAndDrop(final int count) {
+        return foldLeftWhile(
+            Pair.of(new ArrayList<>(StrictMath.min(100, count)), this),
+            (pair, it) -> pair.getLeft().size() < count,
+            (pair, it) -> {
+                pair.getLeft().add(it);
+                return Pair.of(pair.getLeft(), pair.getRight().getTail());
             }
         );
     }
@@ -267,6 +272,25 @@ public interface Stream<T> extends Iterable<T> {
             (r, it) -> {
                 r.addLast(it);
                 return r;
+            }
+        );
+    }
+
+    default Pair<List<T>, Stream<T>> takeAndDropWhile(final Predicate<T> predicate) {
+        return takeAndDropWhileIf(predicate, true);
+    }
+
+    default Pair<List<T>, Stream<T>> takeAndDropWhileNot(final Predicate<T> predicate) {
+        return takeAndDropWhileIf(predicate, false);
+    }
+
+    default Pair<List<T>, Stream<T>> takeAndDropWhileIf(final Predicate<T> predicate, final boolean isTrue) {
+        return foldLeftWhile(
+            Pair.of(new LinkedList<>(), this),
+            (pair, it) -> predicate.test(it) == isTrue,
+            (pair, it) -> {
+                pair.getLeft().add(it);
+                return Pair.of(pair.getLeft(), pair.getRight().getTail());
             }
         );
     }
@@ -324,7 +348,6 @@ public interface Stream<T> extends Iterable<T> {
 
         return new Spliterator<T>() {
 
-            private Knowable<Long> estimateSize = size();
             private Stream<T> stream = owner;
 
             @Override
@@ -333,10 +356,7 @@ public interface Stream<T> extends Iterable<T> {
                     .getHeadOption()
                     .map(head -> {
                         action.accept(head);
-
                         stream = stream.getTail();
-                        estimateSize = stream.size();
-
                         return true;
                     })
                     .orElse(false);
@@ -349,7 +369,7 @@ public interface Stream<T> extends Iterable<T> {
 
             @Override
             public long estimateSize() {
-                return estimateSize.orElse(-1L);
+                return -1;
             }
 
             @Override

@@ -7,9 +7,9 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
-import static com.funbasetools.FBT.*;
 import static org.junit.Assert.*;
 
 public class StreamTest {
@@ -22,7 +22,7 @@ public class StreamTest {
     public void testFactorial() {
         // Given
         final Stream<Integer> factorialSample =
-            asStream(1, 2, 6, 24, 120, 720, 5040, 40320, 362880);
+            Streams.of(1, 2, 6, 24, 120, 720, 5040, 40320, 362880);
 
         // Then
         assertTrue(factorialStream.corresponds(factorialSample));
@@ -32,7 +32,7 @@ public class StreamTest {
     public void testFibonacci() {
         // Given
         final Stream<Integer> fibSample =
-            asStream(1, 1, 2, 3, 5, 8, 13, 21, 34);
+            Streams.of(1, 1, 2, 3, 5, 8, 13, 21, 34);
 
         // Then
         assertTrue(fibonacciStream.corresponds(fibSample));
@@ -40,7 +40,6 @@ public class StreamTest {
 
     @Test
     public void testEmptyStream() {
-        assertEquals(known(0L), Streams.emptyStream().size());
         assertEquals("[]", Streams.emptyStream().toString());
     }
 
@@ -65,7 +64,6 @@ public class StreamTest {
 
     @Test
     public void testSingletonStream() {
-        assertEquals(known(1L), Streams.singleton("abc").size());
         assertEquals("[ abc ]", Streams.singleton("abc").toString());
     }
 
@@ -75,10 +73,9 @@ public class StreamTest {
         final String alphabet = "abcdefghijklmnopqrstuvwxyz";
 
         // when
-        final Stream<Character> charStream = asStream(alphabet);
+        final Stream<Character> charStream = Streams.of(alphabet);
 
         //then
-        assertEquals(known((long)alphabet.length()), charStream.size());
         assertArrayEquals(
             new Object[] { 'a', 'b', 'c', 'd', 'e' },
             charStream.take(5).toArray()
@@ -88,30 +85,84 @@ public class StreamTest {
     @Test
     public void testAppend() {
         // given
-        final Stream<Integer> baseStream = asStream(0, 1, 2);
+        final Stream<Integer> baseStream = Streams.of(0, 1, 2);
 
         // when
         final Stream<Integer> stream = baseStream.append(3);
 
         // Then
-        assertEquals(atLeast(1L), stream.size());
         assertEquals("[ 0, ...]", stream.toString());
+    }
+
+    @Test
+    public void testExist() {
+        // given
+        final Stream<Integer> stream = Streams.of(0, 2, 4, 6, 8);
+
+        // then
+        assertTrue(stream.exist(v -> v == 2));
+        assertTrue(stream.existNot(v -> v == 3));
+
+        assertFalse(stream.exist(v -> v == 3));
+        assertFalse(stream.existNot(v -> v == 8));
+    }
+
+    @Test
+    public void testFilter() {
+        // given
+        final Stream<Integer> stream = Streams.range(1, 20);
+
+        // when
+        final Stream<Integer> evens = stream.filter(v -> v % 2 == 0);
+        final Stream<Integer> odds = stream.filterNot(v -> v % 2 == 0);
+
+        // then
+        assertTrue(evens.corresponds(Streams.of(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)));
+        assertTrue(odds.corresponds(Streams.of(1, 3, 5, 7, 9, 11, 13, 15, 17, 19)));
+    }
+
+    @Test
+    public void testFirst() {
+        // given
+        final Stream<Integer> stream = Streams.range(1, 20);
+
+        // when
+        final Optional<Integer> firstEven = stream.first(v -> v % 2 == 0);
+        final Optional<Integer> firstOdd = stream.firstNot(v -> v % 2 == 0);
+
+        // then
+        assertTrue(firstEven.isPresent());
+        assertSame(2, firstEven.get());
+        assertTrue(firstOdd.isPresent());
+        assertSame(1, firstOdd.get());
     }
 
     @Test
     public void testPrepend() {
         // given
-        final Stream<Integer> baseStream = asStream(2, 3);
+        final Stream<Integer> baseStream = Streams.of(2, 3);
 
         // when
         final Stream<Integer> stream1 = baseStream.prepend(1);
         final Stream<Integer> stream2 = stream1.prepend(0);
 
         // then
-        assertEquals(known(3L), stream1.size());
         assertEquals("[ 1, 2, 3 ]", stream1.toString());
-        assertEquals(known(4L), stream2.size());
         assertEquals("[ 0, 1, 2, ...]", stream2.toString());
+    }
+
+    @Test
+    public void testPrependStream() {
+        // given
+        final Stream<Integer> baseStream = Streams.of(2, 3);
+
+        // when
+        final Stream<Integer> result = baseStream.prepend(Streams.of(0, 1));
+
+        // then
+        assertTrue(
+            result.corresponds(Streams.of(0, 1, 2, 3))
+        );
     }
 
     @Test
@@ -167,15 +218,37 @@ public class StreamTest {
     public void testZipping() {
         // given
         final Stream<Integer> aStream = Streams.from(1);
-        final Stream<Character> bStream = asStream(ArrayUtils.toObject("abcdefghijklmnopqrstuvwxyz".toCharArray()));
+        final Stream<Character> bStream = Streams.of(ArrayUtils.toObject("abcdefghijklmnopqrstuvwxyz".toCharArray()));
 
         // when
         final Stream<Pair<Integer, Character>> pairedStream = aStream.zip(bStream);
 
         // then
         assertArrayEquals(
-            new Object[] { pair(1, 'a'), pair(2, 'b'), pair(3, 'c') },
+            new Object[] { Pair.of(1, 'a'), Pair.of(2, 'b'), Pair.of(3, 'c') },
             pairedStream.take(3).toArray()
+        );
+    }
+
+    @Test
+    public void testZippingWithIndex() {
+        // given
+        final Stream<Character> stream = Streams.of(ArrayUtils.toObject("abcdefghijklmnopqrstuvwxyz".toCharArray()));
+
+        // when
+        final Stream<Pair<Character, Integer>> pairedWithIndex = stream.zipWithIndex();
+
+        // then
+        assertTrue(
+            pairedWithIndex.corresponds(
+                Streams.of(
+                    Pair.of('a', 0),
+                    Pair.of('b', 1),
+                    Pair.of('c', 2),
+                    Pair.of('d', 3),
+                    Pair.of('e', 4)
+                )
+            )
         );
     }
 
@@ -189,9 +262,6 @@ public class StreamTest {
             new Object[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
             Streams.fromWhile(1, i -> i < 10).takeWhile(it -> true).toArray()
         );
-
-        assertEquals(known(10L), Streams.range(1, 10).size());
-        assertEquals(known(9L), Streams.range(1, 10).drop(1).size());
     }
 
     @Test
