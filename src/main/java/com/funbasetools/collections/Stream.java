@@ -1,5 +1,6 @@
 package com.funbasetools.collections;
 
+import com.funbasetools.TriFunction;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -141,6 +142,19 @@ public interface Stream<T> extends Iterable<T> {
         while (curr.getHeadOption().isPresent()) {
             result = function.apply(result, curr.getHeadOption().get());
             curr = curr.getTail();
+        }
+
+        return result;
+    }
+
+    default <R> R foldLeftWithIndex(final R initialValue, final TriFunction<R, T, Integer, R> function) {
+        R result = initialValue;
+        int idx = 0;
+        Stream<T> curr = this;
+        while (curr.getHeadOption().isPresent()) {
+            result = function.apply(result, curr.getHeadOption().get(), idx);
+            curr = curr.getTail();
+            idx += 1;
         }
 
         return result;
@@ -339,6 +353,14 @@ public interface Stream<T> extends Iterable<T> {
     default void forEach(Consumer<? super T> action) {
         for (T item: this) {
             action.accept(item);
+        }
+    }
+
+    default void forEachWithIndex(BiConsumer<? super T, Integer> action) {
+        int idx = 0;
+        for (T item: this) {
+            action.accept(item, idx);
+            idx += 1;
         }
     }
 
