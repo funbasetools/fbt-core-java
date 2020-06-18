@@ -157,7 +157,7 @@ public enum Border {
 
     @Override
     public String toString() {
-        return "" + character;
+        return Character.toString(character);
     }
 
     public static Optional<Border> getByBorderTypes(

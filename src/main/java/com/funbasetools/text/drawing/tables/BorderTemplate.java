@@ -13,106 +13,106 @@ public class BorderTemplate {
     public static final BorderTemplate VERTICAL_THICK_TABLE = safeCreate(Border.TV_TOP_LEFT, Border.TV_BOTTOM_RIGHT, Border.TV_CROSS);
 
     public static Optional<BorderTemplate> create(
-        final Border topLeftCorner,
-        final Border bottomRightCorner,
-        final Border crossBorder) {
+        final Border topLeft,
+        final Border bottomRight,
+        final Border cross) {
 
-        if (topLeftCorner.isCorner() && bottomRightCorner.isCorner()) {
-            return Optional.of(safeCreate(topLeftCorner, bottomRightCorner, crossBorder));
+        if (topLeft.isCorner() && bottomRight.isCorner()) {
+            return Optional.of(safeCreate(topLeft, bottomRight, cross));
         }
 
         return Optional.empty();
     }
 
-    public static Border getTopRightCorner(
-        final Border topLeftCorner,
-        final Border bottomRightCorner) {
+    public static Border getTopRight(
+        final Border topLeft,
+        final Border bottomRight) {
 
         return Border
             .getByBorderTypes(
                 BorderType.NONE,
                 BorderType.NONE,
-                bottomRightCorner.getTop(),
-                topLeftCorner.getRight()
+                bottomRight.getTop(),
+                topLeft.getRight()
             )
             .orElse(Border.TOP_RIGHT);
     }
 
-    public static Border getBottomLeftCorner(
-        final Border topLeftCorner,
-        final Border bottomRightCorner) {
+    public static Border getBottomLeft(
+        final Border topLeft,
+        final Border bottomRight) {
 
         return Border
             .getByBorderTypes(
-                topLeftCorner.getBottom(),
-                bottomRightCorner.getLeft(),
+                topLeft.getBottom(),
+                bottomRight.getLeft(),
                 BorderType.NONE,
                 BorderType.NONE
             )
             .orElse(Border.BOTTOM_LEFT);
     }
 
-    public static Border getTopCenterBorder(
-        final Border topLeftCorner,
-        final Border topRightCorner,
-        final Border crossBorder) {
+    public static Border getTopCenter(
+        final Border topLeft,
+        final Border topRight,
+        final Border cross) {
 
         return Border
             .getByBorderTypes(
                 BorderType.NONE,
-                topRightCorner.getLeft(),
-                crossBorder.getTop(),
-                topLeftCorner.getRight()
+                topRight.getLeft(),
+                cross.getTop(),
+                topLeft.getRight()
             )
             .orElse(Border.TOP_CENTER);
     }
 
-    public static Border getMiddleRightBorder(
-        final Border topRightCorner,
-        final Border bottomRightCorner,
-        final Border crossBorder) {
+    public static Border getMiddleRight(
+        final Border topRight,
+        final Border bottomRight,
+        final Border cross) {
 
         return Border
             .getByBorderTypes(
-                topRightCorner.getBottom(),
+                topRight.getBottom(),
                 BorderType.NONE,
-                bottomRightCorner.getTop(),
-                crossBorder.getRight()
+                bottomRight.getTop(),
+                cross.getRight()
             )
             .orElse(Border.MIDDLE_RIGHT);
     }
 
-    public static Border getBottomCenterBorder(
-        final Border bottomLeftCorner,
-        final Border bottomRightCorner,
-        final Border crossBorder) {
+    public static Border getBottomCenter(
+        final Border bottomLeft,
+        final Border bottomRight,
+        final Border cross) {
 
         return Border
             .getByBorderTypes(
-                crossBorder.getBottom(),
-                bottomRightCorner.getLeft(),
+                cross.getBottom(),
+                bottomRight.getLeft(),
                 BorderType.NONE,
-                bottomLeftCorner.getRight()
+                bottomLeft.getRight()
             )
             .orElse(Border.BOTTOM_CENTER);
     }
 
-    public static Border getMiddleLeftBorder(
-        final Border topLeftCorner,
-        final Border bottomLeftCorner,
-        final Border crossBorder) {
+    public static Border getMiddleLeft(
+        final Border topLeft,
+        final Border bottomLeft,
+        final Border cross) {
 
         return Border
             .getByBorderTypes(
-                topLeftCorner.getBottom(),
-                crossBorder.getLeft(),
-                bottomLeftCorner.getTop(),
+                topLeft.getBottom(),
+                cross.getLeft(),
+                bottomLeft.getTop(),
                 BorderType.NONE
             )
             .orElse(Border.MIDDLE_LEFT);
     }
 
-    public static Border getHorizontalBorder(
+    public static Border getHorizontalLine(
         final Border before,
         final Border after) {
 
@@ -126,7 +126,7 @@ public class BorderTemplate {
             .orElse(Border.HORIZONTAL);
     }
 
-    public static Border getVerticalBorder(
+    public static Border getVerticalLine(
         final Border upper,
         final Border under) {
 
@@ -140,72 +140,188 @@ public class BorderTemplate {
             .orElse(Border.VERTICAL);
     }
 
-    private final Border topLeftCorner;
-    private final Border bottomRightCorner;
-    private final Border crossBorder;
-    private final Border bottomLeftCorner;
-    private final Border topRightCorner;
-    private final Border topCenterBorder;
-    private final Border middleRightBorder;
-    private final Border bottomCenterBorder;
-    private final Border middleLeftBorder;
+    public static Border getHorizontalBetween(final Border before, final Border after) {
+        return Border
+            .getByBorderTypes(BorderType.NONE, after.getLeft(), BorderType.NONE, before.getRight())
+            .orElse(Border.HORIZONTAL);
+    }
+
+    public static Border getVerticalBetween(final Border upper, final Border under) {
+        return Border
+            .getByBorderTypes(upper.getBottom(), BorderType.NONE, under.getTop(), BorderType.NONE)
+            .orElse(Border.VERTICAL);
+    }
+
+    private final Border topLeft;
+    private final Border bottomRight;
+    private final Border cross;
+    private final Border bottomLeft;
+    private final Border topRight;
+    private final Border topCenter;
+    private final Border middleRight;
+    private final Border bottomCenter;
+    private final Border middleLeft;
+    private final Border firstTopHorizontal;
+    private final Border centerTopHorizontal;
+    private final Border lastTopHorizontal;
+    private final Border firstMiddleHorizontal;
+    private final Border centerMiddleHorizontal;
+    private final Border lastMiddleHorizontal;
+    private final Border firstBottomHorizontal;
+    private final Border centerBottomHorizontal;
+    private final Border lastBottomHorizontal;
+    private final Border firstLeftVertical;
+    private final Border firstCenterVertical;
+    private final Border firstRightVertical;
+    private final Border middleLeftVertical;
+    private final Border middleCenterVertical;
+    private final Border middleRightVertical;
+    private final Border lastLeftVertical;
+    private final Border lastCenterVertical;
+    private final Border lastRightVertical;
 
     private BorderTemplate(
-        final Border topLeftCorner,
-        final Border bottomRightCorner,
-        final Border crossBorder,
-        final Border bottomLeftCorner,
-        final Border topRightCorner,
-        final Border topCenterBorder,
-        final Border middleRightBorder,
-        final Border bottomCenterBorder,
-        final Border middleLeftBorder) {
+        final Border topLeft,
+        final Border bottomRight,
+        final Border cross,
+        final Border bottomLeft,
+        final Border topRight,
+        final Border topCenter,
+        final Border middleRight,
+        final Border bottomCenter,
+        final Border middleLeft) {
 
-        this.topLeftCorner = topLeftCorner;
-        this.bottomRightCorner = bottomRightCorner;
-        this.crossBorder = crossBorder;
-        this.bottomLeftCorner = bottomLeftCorner;
-        this.topRightCorner = topRightCorner;
-        this.topCenterBorder = topCenterBorder;
-        this.middleRightBorder = middleRightBorder;
-        this.bottomCenterBorder = bottomCenterBorder;
-        this.middleLeftBorder = middleLeftBorder;
+        this.topLeft = topLeft;
+        this.bottomRight = bottomRight;
+        this.cross = cross;
+        this.bottomLeft = bottomLeft;
+        this.topRight = topRight;
+        this.topCenter = topCenter;
+        this.middleRight = middleRight;
+        this.bottomCenter = bottomCenter;
+        this.middleLeft = middleLeft;
+        this.firstTopHorizontal = getHorizontalBetween(topLeft, topCenter);
+        this.centerTopHorizontal = getHorizontalBetween(topCenter, topCenter);
+        this.lastTopHorizontal = getHorizontalBetween(topCenter, topRight);
+        this.firstMiddleHorizontal = getHorizontalBetween(middleLeft, cross);
+        this.centerMiddleHorizontal = getHorizontalBetween(cross, cross);
+        this.lastMiddleHorizontal = getHorizontalBetween(cross, middleRight);
+        this.firstBottomHorizontal = getHorizontalBetween(bottomLeft, bottomCenter);
+        this.centerBottomHorizontal = getHorizontalBetween(bottomCenter, bottomCenter);
+        this.lastBottomHorizontal = getHorizontalBetween(bottomCenter, bottomRight);
+        this.firstLeftVertical = getVerticalLine(topLeft, middleLeft);
+        this.firstCenterVertical = getVerticalLine(topCenter, cross);
+        this.firstRightVertical = getVerticalLine(topRight, middleRight);
+        this.middleLeftVertical = getVerticalLine(middleLeft, middleLeft);
+        this.middleCenterVertical = getVerticalLine(cross, cross);
+        this.middleRightVertical = getVerticalLine(middleRight, middleRight);
+        this.lastLeftVertical = getVerticalLine(middleLeft, bottomLeft);
+        this.lastCenterVertical = getVerticalLine(cross, bottomCenter);
+        this.lastRightVertical = getVerticalLine(middleRight, bottomRight);
     }
 
-    public Border getTopLeftCorner() {
-        return topLeftCorner;
+    public Border getTopLeft() {
+        return topLeft;
     }
 
-    public Border getTopRightCorner() {
-        return topRightCorner;
+    public Border getTopRight() {
+        return topRight;
     }
 
-    public Border getBottomLeftCorner() {
-        return bottomLeftCorner;
+    public Border getBottomLeft() {
+        return bottomLeft;
     }
 
-    public Border getBottomRightCorner() {
-        return bottomRightCorner;
+    public Border getBottomRight() {
+        return bottomRight;
     }
 
-    public Border getCrossBorder() {
-        return crossBorder;
+    public Border getCross() {
+        return cross;
     }
 
-    public Border getTopCenterBorder() {
-        return topCenterBorder;
+    public Border getTopCenter() {
+        return topCenter;
     }
 
-    public Border getMiddleRightBorder() {
-        return middleRightBorder;
+    public Border getMiddleRight() {
+        return middleRight;
     }
 
-    public Border getBottomCenterBorder() {
-        return bottomCenterBorder;
+    public Border getBottomCenter() {
+        return bottomCenter;
     }
 
-    public Border getMiddleLeftBorder() {
-        return middleLeftBorder;
+    public Border getMiddleLeft() {
+        return middleLeft;
+    }
+
+    public Border getCenterTopHorizontal() {
+        return centerTopHorizontal;
+    }
+
+    public Border getLastTopHorizontal() {
+        return lastTopHorizontal;
+    }
+
+    public Border getFirstMiddleHorizontal() {
+        return firstMiddleHorizontal;
+    }
+
+    public Border getCenterMiddleHorizontal() {
+        return centerMiddleHorizontal;
+    }
+
+    public Border getLastMiddleHorizontal() {
+        return lastMiddleHorizontal;
+    }
+
+    public Border getFirstBottomHorizontal() {
+        return firstBottomHorizontal;
+    }
+
+    public Border getCenterBottomHorizontal() {
+        return centerBottomHorizontal;
+    }
+
+    public Border getLastBottomHorizontal() {
+        return lastBottomHorizontal;
+    }
+
+    public Border getFirstLeftVertical() {
+        return firstLeftVertical;
+    }
+
+    public Border getFirstCenterVertical() {
+        return firstCenterVertical;
+    }
+
+    public Border getFirstRightVertical() {
+        return firstRightVertical;
+    }
+
+    public Border getMiddleLeftVertical() {
+        return middleLeftVertical;
+    }
+
+    public Border getMiddleCenterVertical() {
+        return middleCenterVertical;
+    }
+
+    public Border getMiddleRightVertical() {
+        return middleRightVertical;
+    }
+
+    public Border getLastLeftVertical() {
+        return lastLeftVertical;
+    }
+
+    public Border getLastCenterVertical() {
+        return lastCenterVertical;
+    }
+
+    public Border getLastRightVertical() {
+        return lastRightVertical;
     }
 
     @Override
@@ -214,31 +330,11 @@ public class BorderTemplate {
         final String sp = " ";
 
         return ""
-            + topLeftCorner
-            + getHorizontalBorder(topLeftCorner, topCenterBorder)
-            + topCenterBorder
-            + getHorizontalBorder(topCenterBorder, topRightCorner)
-            + topRightCorner
-            + nl
-            + getVerticalBorder(topLeftCorner, middleLeftBorder) + sp
-            + getVerticalBorder(topCenterBorder, crossBorder) + sp
-            + getVerticalBorder(topRightCorner, middleRightBorder)
-            + nl
-            + middleLeftBorder
-            + getHorizontalBorder(middleLeftBorder, crossBorder)
-            + crossBorder
-            + getHorizontalBorder(crossBorder, middleRightBorder)
-            + middleRightBorder
-            + nl
-            + getVerticalBorder(middleLeftBorder, bottomLeftCorner) + sp
-            + getVerticalBorder(crossBorder, bottomCenterBorder) + sp
-            + getVerticalBorder(middleRightBorder, bottomRightCorner)
-            + nl
-            + bottomLeftCorner
-            + getHorizontalBorder(bottomLeftCorner, bottomCenterBorder)
-            + bottomCenterBorder
-            + getHorizontalBorder(bottomCenterBorder, bottomRightCorner)
-            + bottomRightCorner;
+            + topLeft + firstTopHorizontal + topCenter + lastTopHorizontal + topRight + nl
+            + firstLeftVertical + sp + firstCenterVertical + sp + firstRightVertical + nl
+            + middleLeft + centerMiddleHorizontal + cross + lastMiddleHorizontal + middleRight + nl
+            + lastLeftVertical + sp + lastCenterVertical + sp + lastRightVertical + nl
+            + bottomLeft + firstBottomHorizontal + bottomCenter + lastBottomHorizontal + bottomRight;
     }
 
     // private methods
@@ -248,12 +344,12 @@ public class BorderTemplate {
         final Border bottomRightCorner,
         final Border crossBorder) {
 
-        final Border bottomLeftCorner = getBottomLeftCorner(topLeftCorner, bottomRightCorner);
-        final Border topRightCorner = getTopRightCorner(topLeftCorner, bottomRightCorner);
-        final Border topCenterBorder = getTopCenterBorder(topLeftCorner, topRightCorner, crossBorder);
-        final Border middleRightBorder = getMiddleRightBorder(topRightCorner, bottomRightCorner, crossBorder);
-        final Border bottomCenterBorder = getBottomCenterBorder(bottomLeftCorner, bottomRightCorner, crossBorder);
-        final Border middleLeftBorder = getMiddleLeftBorder(topLeftCorner, bottomLeftCorner, crossBorder);
+        final Border bottomLeftCorner = getBottomLeft(topLeftCorner, bottomRightCorner);
+        final Border topRightCorner = getTopRight(topLeftCorner, bottomRightCorner);
+        final Border topCenterBorder = getTopCenter(topLeftCorner, topRightCorner, crossBorder);
+        final Border middleRightBorder = getMiddleRight(topRightCorner, bottomRightCorner, crossBorder);
+        final Border bottomCenterBorder = getBottomCenter(bottomLeftCorner, bottomRightCorner, crossBorder);
+        final Border middleLeftBorder = getMiddleLeft(topLeftCorner, bottomLeftCorner, crossBorder);
 
         return new BorderTemplate(
             topLeftCorner,
@@ -266,5 +362,9 @@ public class BorderTemplate {
             bottomCenterBorder,
             middleLeftBorder
         );
+    }
+
+    public Border getFirstTopHorizontal() {
+        return firstTopHorizontal;
     }
 }
