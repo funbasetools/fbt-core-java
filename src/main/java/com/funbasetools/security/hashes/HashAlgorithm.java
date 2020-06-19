@@ -19,4 +19,20 @@ public interface HashAlgorithm {
             throw new ShouldNotReachThisPointException(ex);
         }
     }
+
+    static HashAlgorithm getMd5() {
+        return  new Md5HashAlgorithm();
+    }
+
+    static HashAlgorithm getSha1() {
+        return new Sha1HashAlgorithm();
+    }
+
+    static HashAlgorithm getSha256() {
+        return new Sha256HashAlgorithm();
+    }
+
+    static HashAlgorithm getSha512() {
+        return new Sha512HashAlgorithm();
+    }
 }

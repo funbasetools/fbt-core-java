@@ -5,11 +5,8 @@ import java.util.function.Function;
 
 public abstract class Try<T> {
 
-    public static Try<Object> of(final Runnable runnable) {
-        return of(() -> {
-            runnable.run();
-            return new Object();
-        });
+    public static Try<Unit> of(final ThrowingRunnable<? extends Exception> runnable) {
+        return of(Unit.from(runnable));
     }
 
     public static <T> Try<T> of(final ThrowingSupplier<T, ? extends  Exception> supplier) {
