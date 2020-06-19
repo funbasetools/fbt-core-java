@@ -1,6 +1,7 @@
 package com.funbasetools;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public abstract class Try<T> {
@@ -35,6 +36,16 @@ public abstract class Try<T> {
 
     public boolean isFailure() {
         return !isSuccess();
+    }
+
+    public Try<T> ifSuccess(final Consumer<T> consumer) {
+        toOptional().ifPresent(consumer);
+        return this;
+    }
+
+    public Try<T> ifFailure(final Consumer<Exception> consumer) {
+        toFailureOptional().ifPresent(consumer);
+        return this;
     }
 
     public <R> Try<R> flatMap(final Function<T, Try<R>> f) {
