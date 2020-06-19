@@ -5,7 +5,7 @@ import com.funbasetools.Unit;
 import com.funbasetools.pipelines.messages.Message;
 
 @FunctionalInterface
-public interface PipelineDestination {
+public interface PipelineDestination<M extends Message> {
 
-    Try<Unit> send(final Message message);
+    Try<Unit> send(final M message);
 }

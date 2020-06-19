@@ -8,7 +8,7 @@ public class Sha256EncodedIdMessage extends EncodedIdMessage {
         return new Sha256EncodedIdMessage(content);
     }
 
-    private Sha256EncodedIdMessage(String content) {
+    protected Sha256EncodedIdMessage(String content) {
         super(content, TextToTextEncoder.getSha256Encoder());
     }
 }
