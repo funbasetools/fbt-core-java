@@ -1,10 +1,23 @@
 package com.funbasetools;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public abstract class Try<T> {
+
+    public static <RES extends Closeable, E extends IOException> Try<Unit> of(
+        final ThrowingSupplier<RES, E> resourceSupplier,
+        final ThrowingConsumer<RES, E> resourceConsumer) {
+
+        return Try.of(() -> {
+            try(final RES resource = resourceSupplier.get()) {
+                resourceConsumer.accept(resource);
+            }
+        });
+    }
 
     public static Try<Unit> of(final ThrowingRunnable<? extends Exception> runnable) {
         return of(Unit.from(runnable));
@@ -45,6 +58,17 @@ public abstract class Try<T> {
 
     public Try<T> ifFailure(final Consumer<Exception> consumer) {
         toFailureOptional().ifPresent(consumer);
+        return this;
+    }
+
+    public  <E extends Exception> Try<T> ifFailureWith(
+        final Class<E> exClass,
+        final Consumer<E> catchConsumer) {
+
+        toFailureOptional()
+            .filter(ex -> exClass.isAssignableFrom(ex.getClass()))
+            .ifPresent(ex -> catchConsumer.accept(exClass.cast(ex)));
+
         return this;
     }
 
