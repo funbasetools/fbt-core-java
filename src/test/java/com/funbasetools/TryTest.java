@@ -213,6 +213,45 @@ public class TryTest {
     }
 
     @Test
+    public void testFlattenWhenIsFullySuccess() {
+        // given
+        final Object obj = new Object();
+        final Try<Try<Object>> res = Try.success(Try.success(obj));
+
+        // when
+        final Try<Object> flat = Try.flatten(res);
+
+        // then
+        testSucceeded(flat, obj);
+    }
+
+    @Test
+    public void testFlattenWhenOnlyFirstLevelIsSuccess() {
+        // given
+        final Exception ex = new Exception();
+        final Try<Try<Object>> res = Try.success(Try.failure(ex));
+
+        // when
+        final Try<Object> flat = Try.flatten(res);
+
+        // then
+        testFailed(flat, ex);
+    }
+
+    @Test
+    public void testFlattenWhenFirstLevelIsFailure() {
+        // given
+        final Exception ex = new Exception();
+        final Try<Try<Object>> res = Try.failure(ex);
+
+        // when
+        final Try<Object> flat = Try.flatten(res);
+
+        // then
+        testFailed(flat, ex);
+    }
+
+    @Test
     public void testMapSuccess() {
         // given
         final Object r1 = new Object();
