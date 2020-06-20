@@ -21,6 +21,27 @@ import java.util.function.Function;
 
 public class TryTest {
 
+    public static <T> void assertSuccess(final Try<T> res) {
+        assertTrue(res.isSuccess());
+        assertFalse(res.isFailure());
+        assertTrue(res.toOptional().isPresent());
+        assertFalse(res.toFailureOptional().isPresent());
+    }
+
+    public static <T> void assertSuccess(final Try<T> res, T result) {
+        assertSuccess(res);
+        assertTrue(res.toOptional().isPresent());
+        assertEquals(result, res.toOptional().get());
+    }
+
+    public static void assertFailure(final Try<?> res, final Exception ex) {
+        assertFalse(res.isSuccess());
+        assertTrue(res.isFailure());
+        assertFalse(res.toOptional().isPresent());
+        assertTrue(res.toFailureOptional().isPresent());
+        assertEquals(ex, res.toFailureOptional().get());
+    }
+
     @Test
     public void testSuccess() {
         // given
@@ -28,7 +49,7 @@ public class TryTest {
         final Try<Object> res = Try.success(result);
 
         // then
-        testSucceeded(res, result);
+        assertSuccess(res, result);
     }
 
     @Test
@@ -38,7 +59,7 @@ public class TryTest {
         final Try<Object> res = Try.failure(ex);
 
         // then
-        testFailed(res, ex);
+        assertFailure(res, ex);
     }
 
     @Test
@@ -48,7 +69,7 @@ public class TryTest {
         final Try<Object> res = Try.of(() -> result);
 
         // then
-        testSucceeded(res, result);
+        assertSuccess(res, result);
     }
 
     @Test
@@ -60,7 +81,7 @@ public class TryTest {
         });
 
         // then
-        testFailed(res, ex);
+        assertFailure(res, ex);
     }
 
     @Test
@@ -171,7 +192,7 @@ public class TryTest {
             .flatMap(f);
 
         // then
-        testSucceeded(res2, r2);
+        assertSuccess(res2, r2);
         verify(f, times(1)).apply(any());
     }
 
@@ -190,7 +211,7 @@ public class TryTest {
         final Try<Object> res2 = res1.flatMap(function);
 
         // then
-        testFailed(res2, ex1);
+        assertFailure(res2, ex1);
         verify(function, never()).apply(any());
     }
 
@@ -208,7 +229,7 @@ public class TryTest {
         final Try<Object> res2 = res1.flatMap(function);
 
         // then
-        testFailed(res2, ex);
+        assertFailure(res2, ex);
         verify(function, times(1)).apply(any());
     }
 
@@ -222,7 +243,7 @@ public class TryTest {
         final Try<Object> flat = Try.flatten(res);
 
         // then
-        testSucceeded(flat, obj);
+        assertSuccess(flat, obj);
     }
 
     @Test
@@ -235,7 +256,7 @@ public class TryTest {
         final Try<Object> flat = Try.flatten(res);
 
         // then
-        testFailed(flat, ex);
+        assertFailure(flat, ex);
     }
 
     @Test
@@ -248,7 +269,7 @@ public class TryTest {
         final Try<Object> flat = Try.flatten(res);
 
         // then
-        testFailed(flat, ex);
+        assertFailure(flat, ex);
     }
 
     @Test
@@ -263,7 +284,7 @@ public class TryTest {
         final Try<Object> res2 = res1.map(f);
 
         // then
-        testSucceeded(res2, r2);
+        assertSuccess(res2, r2);
     }
 
     @Test
@@ -283,7 +304,7 @@ public class TryTest {
         final Try<Object> res2 = res1.map(failingFunction);
 
         // then
-        testFailed(res2, ex1);
+        assertFailure(res2, ex1);
         verify(failingFunction, never()).apply(any());
     }
 
@@ -303,7 +324,7 @@ public class TryTest {
         final Try<Object> res2 = res1.map(failingFunction);
 
         // then
-        testFailed(res2, ex);
+        assertFailure(res2, ex);
         verify(failingFunction, times(1)).apply(any());
     }
 
@@ -350,23 +371,5 @@ public class TryTest {
             ex,
             assertThrows(Exception.class, () -> res.throwIfFailureWith(Exception.class))
         );
-    }
-
-    // private methods
-
-    private <T> void testSucceeded(final Try<T> res, T result) {
-        assertTrue(res.isSuccess());
-        assertFalse(res.isFailure());
-        assertTrue(res.toOptional().isPresent());
-        assertFalse(res.toFailureOptional().isPresent());
-        assertEquals(result, res.toOptional().get());
-    }
-
-    private void testFailed(final Try<?> res, final Exception ex) {
-        assertFalse(res.isSuccess());
-        assertTrue(res.isFailure());
-        assertFalse(res.toOptional().isPresent());
-        assertTrue(res.toFailureOptional().isPresent());
-        assertEquals(ex, res.toFailureOptional().get());
     }
 }
