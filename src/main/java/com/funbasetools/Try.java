@@ -61,6 +61,24 @@ public abstract class Try<T> {
         return this;
     }
 
+    public Try<T> throwIfFailure() throws Exception {
+        final Exception ex = toFailureOptional().orElse(null);
+        if (ex != null) {
+            throw ex;
+        }
+
+        return this;
+    }
+
+    public <E extends Exception> Try<T> throwIfFailureWith(final Class<E> exClass) throws E {
+        final Exception ex = toFailureOptional().orElse(null);
+        if (ex != null && exClass.isAssignableFrom(ex.getClass())) {
+            throw exClass.cast(ex);
+        }
+
+        return this;
+    }
+
     public  <E extends Exception> Try<T> ifFailureWith(
         final Class<E> exClass,
         final Consumer<E> catchConsumer) {
@@ -77,7 +95,7 @@ public abstract class Try<T> {
             .map(f)
             .orElseGet(() ->
                 failure(
-                    toFailureOptional().orElse(new Exception("Unknown error"))
+                    toFailureOptional().orElse(new ShouldNotReachThisPointException())
                 )
             );
     }
