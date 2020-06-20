@@ -1,7 +1,11 @@
 package com.funbasetools;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -150,6 +154,27 @@ public abstract class Try<T> {
         public boolean isSuccess() {
             return true;
         }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder()
+                .append(Success.class)
+                .append(result)
+                .build();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof Success
+                && new EqualsBuilder()
+                    .append(result, ((Success<?>)obj).result)
+                    .build();
+        }
+
+        @Override
+        public String toString() {
+            return String.format("Success(%s)", toOptional().map(Objects::toString).orElse("NULL"));
+        }
     }
 
     private static final class Failure<T> extends Try<T> {
@@ -180,6 +205,27 @@ public abstract class Try<T> {
         @Override
         public boolean isSuccess() {
             return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder()
+                .append(Failure.class)
+                .append(exception)
+                .build();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof Failure
+                && new EqualsBuilder()
+                .append(exception, ((Failure<?>)obj).exception)
+                .build();
+        }
+
+        @Override
+        public String toString() {
+            return String.format("Failure(%s)", toFailureOptional().map(Objects::toString).orElse("NULL"));
         }
     }
 }
