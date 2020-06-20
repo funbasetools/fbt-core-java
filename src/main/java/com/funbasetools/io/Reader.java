@@ -1,19 +1,23 @@
 package com.funbasetools.io;
 
 import com.funbasetools.Try;
+import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
-public interface Reader<IS extends InputStream> {
+@FunctionalInterface
+public interface Reader<IN extends InputStream> {
 
-    <IOE extends IOException> IS openReadStream(final String resource) throws IOE;
+    IN openReadStream(final String resource) throws IOException;
 
-    Try<byte[]> readAllBytes(final String resource);
-
-    default Try<IS> tryOpenReadStream(final String resource) {
-        return Try.of(() -> openReadStream(resource));
+    default Try<byte[]> readAllBytes(final String resource) {
+        return Try.of(() -> {
+            try (final IN inputStream = openReadStream(resource)) {
+                return IOUtils.toByteArray(inputStream);
+            }
+        });
     }
 
     default Try<String> readAllText(final String resource, Charset charset) {
