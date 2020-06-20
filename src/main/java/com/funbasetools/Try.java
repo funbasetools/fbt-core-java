@@ -19,6 +19,17 @@ public abstract class Try<T> {
         });
     }
 
+    public static <R, RES extends Closeable, E extends IOException> Try<R> of(
+        final ThrowingSupplier<RES, E> resourceSupplier,
+        final ThrowingFunction<RES, R, E> resourceConsumer) {
+
+        return Try.of(() -> {
+            try(final RES resource = resourceSupplier.get()) {
+                return resourceConsumer.apply(resource);
+            }
+        });
+    }
+
     public static Try<Unit> of(final ThrowingRunnable<? extends Exception> runnable) {
         return of(Unit.from(runnable));
     }
@@ -39,6 +50,17 @@ public abstract class Try<T> {
 
     public static <T, E extends Exception> Try<T> failure(final E ex) {
         return new Failure<>(ex);
+    }
+
+    public static <T> Try<T> flatten(final Try<Try<T>> overTry) {
+        return overTry
+            .toOptional()
+            .orElseGet(() ->
+                overTry
+                    .toFailureOptional()
+                    .<Try<T>>map(Try::failure)
+                    .orElseGet(() ->failure(new ShouldNotReachThisPointException()))
+            );
     }
 
     public abstract Optional<T> toOptional();
@@ -93,11 +115,7 @@ public abstract class Try<T> {
     public <R> Try<R> flatMap(final Function<T, Try<R>> f) {
         return toOptional()
             .map(f)
-            .orElseGet(() ->
-                failure(
-                    toFailureOptional().orElse(new ShouldNotReachThisPointException())
-                )
-            );
+            .orElseGet(() -> Failure.transform(this));
     }
 
     public <R> Try<R> map(final ThrowingFunction<T, R, ? extends Exception> f) {
@@ -135,6 +153,13 @@ public abstract class Try<T> {
     }
 
     private static final class Failure<T> extends Try<T> {
+
+        public static <A, B> Try<B> transform(final Try<A> res) {
+            return res
+                .toFailureOptional()
+                .<Try<B>>map(Try::failure)
+                .orElseGet(() -> failure(new ShouldNotReachThisPointException()));
+        }
 
         private final Exception exception;
 
