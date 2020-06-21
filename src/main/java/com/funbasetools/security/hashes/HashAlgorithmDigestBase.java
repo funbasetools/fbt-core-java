@@ -10,7 +10,7 @@ public abstract class HashAlgorithmDigestBase extends HashAlgorithmBase {
     }
 
     @Override
-    protected void updateHash(Object hash, byte[] buffer, int length) {
+    protected void updateHash(final Object hash, final byte[] buffer, final int length) {
         ((MessageDigest) hash).update(buffer, 0, length);
     }
 

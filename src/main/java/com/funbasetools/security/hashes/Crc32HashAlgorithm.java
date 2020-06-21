@@ -11,12 +11,12 @@ public class Crc32HashAlgorithm extends HashAlgorithmBase {
     }
 
     @Override
-    protected void updateHash(Object hash, byte[] buffer, int length) {
+    protected void updateHash(final Object hash, final byte[] buffer, final int length) {
         ((CRC32)hash).update(buffer, 0, length);
     }
 
     @Override
-    protected byte[] getHash(Object hash) {
+    protected byte[] getHash(final Object hash) {
         final int hashValue = (int)((CRC32)hash).getValue();
         return ByteBuffer.allocate(Integer.BYTES).putInt(hashValue).array();
     }

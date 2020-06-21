@@ -6,7 +6,7 @@ import java.io.IOException;
 public abstract class HashAlgorithmBase implements HashAlgorithm {
 
     @Override
-    public byte[] computeHash(ByteArrayInputStream inputStream) throws IOException {
+    public byte[] computeHash(final ByteArrayInputStream inputStream) throws IOException {
         final Object hash = initHash();
         final byte[] buffer = new byte[4096];
         int read;
