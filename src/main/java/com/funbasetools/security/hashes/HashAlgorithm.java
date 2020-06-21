@@ -4,15 +4,19 @@ import com.funbasetools.ShouldNotReachThisPointException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Optional;
 
 @FunctionalInterface
 public interface HashAlgorithm {
 
-    byte[] computeHash(ByteArrayInputStream inputStream) throws IOException;
+    byte[] computeHash(final ByteArrayInputStream inputStream) throws IOException;
 
-    default byte[] computeHash(byte[] bytes) {
+    default byte[] computeHash(final byte[] bytes) {
+        final byte[] normalizedBytes = Optional
+            .ofNullable(bytes)
+            .orElse(new byte[0]);
 
-        try (final ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
+        try (final ByteArrayInputStream inputStream = new ByteArrayInputStream(normalizedBytes)) {
             return computeHash(inputStream);
         }
         catch (IOException ex) {
