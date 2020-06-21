@@ -1,9 +1,8 @@
 package com.funbasetools.pipelines;
 
 import com.funbasetools.collections.Stream;
-import com.funbasetools.pipelines.messages.Message;
 
-public interface PipelineSource<M extends Message> {
+public interface PipelineSource<T, M extends PipelineMessage<T>> {
 
     Stream<M> get(int count);
 
