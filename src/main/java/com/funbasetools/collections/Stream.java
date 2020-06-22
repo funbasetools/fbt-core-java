@@ -1,6 +1,9 @@
 package com.funbasetools.collections;
 
+import com.funbasetools.ThrowingConsumer;
 import com.funbasetools.TriFunction;
+import com.funbasetools.Try;
+import com.funbasetools.Unit;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -350,13 +353,23 @@ public interface Stream<T> extends Iterable<T> {
     }
 
     @Override
-    default void forEach(Consumer<? super T> action) {
+    default void forEach(final Consumer<? super T> action) {
         for (T item: this) {
             action.accept(item);
         }
     }
 
-    default void forEachWithIndex(BiConsumer<? super T, Integer> action) {
+    default <E extends Exception> void throwingForEach(final ThrowingConsumer<? super T, E> action) throws E {
+        for (T item: this) {
+            action.accept(item);
+        }
+    }
+
+    default <E extends Exception> Try<Unit> tryForEach(final ThrowingConsumer<? super T, E> action) {
+        return Try.of(() -> throwingForEach(action));
+    }
+
+    default void forEachWithIndex(final BiConsumer<? super T, Integer> action) {
         int idx = 0;
         for (T item: this) {
             action.accept(item, idx);

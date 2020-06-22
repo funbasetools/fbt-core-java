@@ -10,10 +10,8 @@ public interface ToBinaryEncoder<SOURCE> extends Encoder<SOURCE, byte[]> {
 
     @Override
     default byte[] encode(final SOURCE source) {
-        try {
-            final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try (final ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             encodeTo(source, outputStream);
-
             return outputStream.toByteArray();
         }
         catch (IOException ex) {
