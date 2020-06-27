@@ -2,8 +2,6 @@ package com.funbasetools;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import java.util.function.Supplier;
-
 public final class Unit {
 
     public static final Unit value = new Unit();

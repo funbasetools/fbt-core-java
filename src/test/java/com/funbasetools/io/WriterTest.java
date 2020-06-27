@@ -32,7 +32,7 @@ public class WriterTest {
         final Function<String, ByteArrayOutputStream> openWriteStream = mock(Function.class);
         when(openWriteStream.apply(any())).thenReturn(byteArrayOutputStream);
 
-        final Writer<ByteArrayOutputStream> writer = openWriteStream::apply;
+        final Writer writer = openWriteStream::apply;
 
         // when
         final Try<Unit> res = writer.writeAllBytes(anyString(), content.getBytes(utf8));
@@ -53,7 +53,7 @@ public class WriterTest {
         final ThrowingFunction<String, ByteArrayOutputStream, IOException> openWriteStream = mock(ThrowingFunction.class);
         doThrow(ex).when(openWriteStream).apply(any());
 
-        final Writer<ByteArrayOutputStream> writer = openWriteStream::apply;
+        final Writer writer = openWriteStream::apply;
 
         // when
         final Try<Unit> res = writer.writeAllBytes(anyString(), content.getBytes(utf8));
@@ -73,7 +73,7 @@ public class WriterTest {
         final Function<String, ByteArrayOutputStream> openWriteStream = mock(Function.class);
         when(openWriteStream.apply(any())).thenReturn(byteArrayOutputStream);
 
-        final Writer<ByteArrayOutputStream> writer = openWriteStream::apply;
+        final Writer writer = openWriteStream::apply;
 
         // when
         final Try<Unit> res = writer.writeAllText(anyString(), content, utf8);

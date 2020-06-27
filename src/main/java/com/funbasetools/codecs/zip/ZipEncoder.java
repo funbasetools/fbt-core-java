@@ -3,7 +3,6 @@ package com.funbasetools.codecs.zip;
 import com.funbasetools.Try;
 import com.funbasetools.codecs.ToBinaryCollectionEncoder;
 import com.funbasetools.collections.Stream;
-import com.funbasetools.collections.Streams;
 import lombok.Builder;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -13,12 +12,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 import java.util.Optional;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class ZipEncoder implements ToBinaryCollectionEncoder<Pair<String, InputStream>> {
+public class ZipEncoder implements ToBinaryCollectionEncoder<Map.Entry<String, InputStream>> {
 
     private final int deflateLevel;
     private final int method;
@@ -30,27 +30,19 @@ public class ZipEncoder implements ToBinaryCollectionEncoder<Pair<String, InputS
     }
 
     @Override
-    public void encodeTo(final Stream<Pair<String, InputStream>> entries, final OutputStream outputStream) throws IOException {
-        final ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream);
-        zipOutputStream.setLevel(deflateLevel);
-        zipOutputStream.setMethod(method);
+    public void encodeTo(final Stream<? extends Map.Entry<String, InputStream>> entries, final OutputStream outputStream)
+        throws IOException {
 
-        entries
-            .throwingForEach(entry -> encodeEntry(entry.getKey(), entry.getValue(), zipOutputStream));
-
+        final ZipOutputStream zipOutputStream = getOutputStreamTo(outputStream);
+        entries.throwingForEach(entry -> encodeEntry(entry.getKey(), entry.getValue(), zipOutputStream));
         zipOutputStream.flush();
     }
 
-    @SafeVarargs
-    public final byte[] encode(final Pair<String, byte[]>... entries) {
-        return encode(Streams.of(entries));
-    }
-
-    public byte[] encode(final Stream<Pair<String, byte[]>> entries) {
+    public byte[] encode(final Stream<? extends Map.Entry<String, byte[]>> entries) {
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
         Try.of(() -> {
-            final Stream<Pair<String, InputStream>> mappedEntries = entries
+            final Stream<Map.Entry<String, InputStream>> mappedEntries = entries
                 .map(entry -> Pair.of(entry.getKey(), new ByteArrayInputStream(entry.getValue())));
 
             encodeTo(mappedEntries, byteArrayOutputStream);
@@ -59,7 +51,7 @@ public class ZipEncoder implements ToBinaryCollectionEncoder<Pair<String, InputS
         return byteArrayOutputStream.toByteArray();
     }
 
-    protected void encodeEntry(
+    public void encodeEntry(
         final String key,
         final InputStream entryContent,
         final ZipOutputStream zipOutputStream) throws IOException {
@@ -67,5 +59,28 @@ public class ZipEncoder implements ToBinaryCollectionEncoder<Pair<String, InputS
         zipOutputStream.putNextEntry(new ZipEntry(key));
         IOUtils.copyLarge(entryContent, zipOutputStream);
         zipOutputStream.closeEntry();
+    }
+
+    public void encodeEntry(
+        final String key,
+        final byte[] entryContent,
+        final ZipOutputStream zipOutputStream) throws IOException {
+
+        encodeEntry(key, new ByteArrayInputStream(entryContent), zipOutputStream);
+    }
+
+    public void encodeEntry(
+        final Map.Entry<String, byte[]> entry,
+        final ZipOutputStream zipOutputStream) throws IOException {
+
+        encodeEntry(entry.getKey(), entry.getValue(), zipOutputStream);
+    }
+
+    public ZipOutputStream getOutputStreamTo(final OutputStream outputStream) {
+        final ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream);
+        zipOutputStream.setLevel(deflateLevel);
+        zipOutputStream.setMethod(method);
+
+        return zipOutputStream;
     }
 }

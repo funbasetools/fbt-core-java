@@ -8,13 +8,13 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 
 @FunctionalInterface
-public interface Reader<IN extends InputStream> {
+public interface Reader {
 
-    IN openReadStream(final String resource) throws IOException;
+    InputStream openReadStream(final String resource) throws IOException;
 
     default Try<byte[]> readAllBytes(final String resource) {
         return Try.of(() -> {
-            try (final IN inputStream = openReadStream(resource)) {
+            try (final InputStream inputStream = openReadStream(resource)) {
                 return IOUtils.toByteArray(inputStream);
             }
         });

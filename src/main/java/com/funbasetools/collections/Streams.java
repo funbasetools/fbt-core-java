@@ -55,6 +55,10 @@ public final class Streams {
     }
 
     public static <T> Stream<T> of(final Iterable<T> iterable) {
+        return fromIterable(iterable);
+    }
+
+    public static <T> Stream<T> fromIterable(final Iterable<T> iterable) {
         if (iterable instanceof Stream) {
             return (Stream<T>) iterable;
         }

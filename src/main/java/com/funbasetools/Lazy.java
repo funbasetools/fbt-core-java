@@ -17,7 +17,7 @@ public final class Lazy<T> {
      * @param <A> The generic parameter of the lazy type
      * @return The lazy object
      */
-    public static <A> Lazy<A> of(Supplier<A> supplier) {
+    public static <A> Lazy<A> of(java.util.function.Supplier<A> supplier) {
         return new Lazy<>(supplier);
     }
 
@@ -26,7 +26,7 @@ public final class Lazy<T> {
     private final Supplier<T> supplier;
     private final Object syncObj = new Object();
 
-    private Lazy(Supplier<T> supplier) {
+    private Lazy(java.util.function.Supplier<T> supplier) {
         this.value = null;
         this.computed = false;
         this.supplier = supplier;

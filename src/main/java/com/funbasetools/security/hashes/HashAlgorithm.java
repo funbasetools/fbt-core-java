@@ -11,7 +11,7 @@ public interface HashAlgorithm {
 
     byte[] computeHash(final ByteArrayInputStream inputStream) throws IOException;
 
-    default byte[] computeHash(final byte[] bytes) {
+    default byte[] computeBytesHash(final byte[] bytes) {
         final byte[] normalizedBytes = Optional
             .ofNullable(bytes)
             .orElse(new byte[0]);

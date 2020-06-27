@@ -31,7 +31,7 @@ public class ReaderTest {
         final Function<String, ByteArrayInputStream> openInputStream = mock(Function.class);
         when(openInputStream.apply(any())).thenReturn(new ByteArrayInputStream(resourceContent));
 
-        final Reader<ByteArrayInputStream> reader = openInputStream::apply;
+        final Reader reader = openInputStream::apply;
 
         // when
         final Try<byte[]> res = reader.readAllBytes(anyString());
@@ -51,7 +51,7 @@ public class ReaderTest {
         final ThrowingFunction<String, ByteArrayInputStream, IOException> openInputStream = mock(ThrowingFunction.class);
         doThrow(ex).when(openInputStream).apply(anyString());
 
-        final Reader<ByteArrayInputStream> reader = openInputStream::apply;
+        final Reader reader = openInputStream::apply;
 
         // when
         final Try<byte[]> res = reader.readAllBytes(anyString());
@@ -71,7 +71,7 @@ public class ReaderTest {
         final Function<String, ByteArrayInputStream> openReadStream = mock(Function.class);
         when(openReadStream.apply(any())).thenReturn(new ByteArrayInputStream(content.getBytes(utf8)));
 
-        final Reader<ByteArrayInputStream> reader = openReadStream::apply;
+        final Reader reader = openReadStream::apply;
 
         // when
         final Try<String> res = reader.readAllText(anyString(), utf8);

@@ -1,6 +1,7 @@
 package com.funbasetools.security.hashes;
 
-import java.nio.ByteBuffer;
+import com.funbasetools.BytesUtil;
+
 import java.util.zip.CRC32;
 
 public class Crc32HashAlgorithm extends HashAlgorithmBase {
@@ -18,6 +19,6 @@ public class Crc32HashAlgorithm extends HashAlgorithmBase {
     @Override
     protected byte[] getHash(final Object hash) {
         final int hashValue = (int)((CRC32)hash).getValue();
-        return ByteBuffer.allocate(Integer.BYTES).putInt(hashValue).array();
+        return BytesUtil.toByteArray(hashValue);
     }
 }

@@ -1,6 +1,6 @@
-package com.funbasetools.codecs.text;
+package com.funbasetools.codecs;
 
-import com.funbasetools.codecs.Encoder;
+import com.funbasetools.codecs.text.HexText;
 import com.funbasetools.security.hashes.HashAlgorithm;
 
 import java.nio.charset.Charset;
@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 @FunctionalInterface
-public interface TextToTextEncoder extends Encoder<String, String> {
+public interface TextToTextEncoder extends ToTextEncoder<String> {
 
     static TextToTextEncoder getMd5Encoder() {
         return getUtf8HashEncoder(HashAlgorithm.getMd5());
@@ -34,7 +34,7 @@ public interface TextToTextEncoder extends Encoder<String, String> {
         Objects.requireNonNull(charset);
 
         return str -> {
-            final byte[] bytes = hashAlgorithm.computeHash(str.getBytes(charset));
+            final byte[] bytes = hashAlgorithm.computeBytesHash(str.getBytes(charset));
 
             return HexText
                 .getEncoder()
