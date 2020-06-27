@@ -189,7 +189,7 @@ public final class Streams {
 
         @Override
         public Spliterator<T> spliterator() {
-            return new Spliterator<T>() {
+            return new Spliterator<>() {
 
                 @Override
                 public boolean tryAdvance(Consumer<? super T> action) {
