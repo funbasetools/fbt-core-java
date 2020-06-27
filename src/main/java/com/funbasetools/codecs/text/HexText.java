@@ -1,13 +1,21 @@
 package com.funbasetools.codecs.text;
 
+import com.funbasetools.ShouldNotReachThisPointException;
+import com.funbasetools.codecs.BinaryToTextEncoder;
+import com.funbasetools.codecs.TextToBinaryDecoder;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
 public final class HexText {
 
     private HexText() { }
 
-    public static TextEncoder getEncoder() {
+    public static BinaryToTextEncoder getEncoder() {
         return new HexEncoder();
     }
-    public static TextDecoder getDecoder() {
+    public static TextToBinaryDecoder getDecoder() {
         return new HexDecoder();
     }
 
@@ -24,7 +32,7 @@ public final class HexText {
 
     private static final String alphabet = "0123456789abcdef";
 
-    private static final class HexEncoder implements TextEncoder {
+    private static final class HexEncoder implements BinaryToTextEncoder {
 
         @Override
         public String encode(byte[] bytes) {
@@ -40,13 +48,25 @@ public final class HexText {
         }
     }
 
-    private static final class HexDecoder implements TextDecoder {
+    private static final class HexDecoder implements TextToBinaryDecoder {
 
         @Override
-        public byte[] decode(String src) {
-            final byte[] bytes = new byte[src.length()/2];
+        public byte[] decode(final String str) {
+            try (final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+                decodeTo(str, byteArrayOutputStream);
+                return byteArrayOutputStream.toByteArray();
+            }
+            catch (IOException ignored) {
+                throw new ShouldNotReachThisPointException();
+            }
+        }
 
-            final String lowerCased = src.toLowerCase();
+        @Override
+        public void decodeTo(final String str, final OutputStream outputStream) throws IOException {
+
+            final byte[] bytes = new byte[str.length()/2];
+
+            final String lowerCased = str.toLowerCase();
             final int length = lowerCased.length();
             for (int i = 0; i < length; i+=2) {
 
@@ -61,7 +81,7 @@ public final class HexText {
                 bytes[i / 2] = (byte)(hi | low);
             }
 
-            return bytes;
+            outputStream.write(bytes);
         }
     }
 }

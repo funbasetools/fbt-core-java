@@ -11,13 +11,13 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 
 @FunctionalInterface
-public interface Writer<OUT extends OutputStream> {
+public interface Writer {
 
-    OUT openWriteStream(final String resource) throws IOException;
+    OutputStream openWriteStream(final String resource) throws IOException;
 
     default Try<Unit> writeAll(final String resource, final InputStream inputStream) {
         return Try.of(() -> {
-            try (final OUT outputStream = openWriteStream(resource)) {
+            try (final OutputStream outputStream = openWriteStream(resource)) {
                 IOUtils.copyLarge(inputStream, outputStream);
             }
         });

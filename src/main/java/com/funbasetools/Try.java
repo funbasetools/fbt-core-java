@@ -1,5 +1,7 @@
 package com.funbasetools;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -7,8 +9,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 public abstract class Try<T> {
 
