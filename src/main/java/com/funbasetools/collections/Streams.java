@@ -292,7 +292,7 @@ public final class Streams {
     private static final class LazyTailStream<T> extends NonEmptyStream<T> {
 
         public static <T> Stream<T> create(T head, Lazy<Stream<T>> lazyTail) {
-            return new LazyTailStream<T>(head, lazyTail);
+            return new LazyTailStream<>(head, lazyTail);
         }
 
         private final Lazy<Stream<T>> lazyTail;
