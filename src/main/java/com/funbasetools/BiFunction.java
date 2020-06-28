@@ -15,4 +15,8 @@ public interface BiFunction<A, B, R> {
     default Function<B, R> curry(final A a) {
         return b -> apply(a, b);
     }
+
+    static <A, B, R> BiFunction<A, B, R> of(java.util.function.BiFunction<A, B, R> function) {
+        return function::apply;
+    }
 }

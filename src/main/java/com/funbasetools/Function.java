@@ -31,6 +31,10 @@ public interface Function<T, R> extends java.util.function.Function<T, R> {
         return () -> apply(arg);
     }
 
+    static <T, R> Function<T, R> of(java.util.function.Function<T, R> function) {
+        return function::apply;
+    }
+
     static <T> Function<T, T> identity() {
         return arg -> arg;
     }
