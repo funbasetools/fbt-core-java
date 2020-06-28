@@ -16,4 +16,8 @@ public interface Consumer<T> extends java.util.function.Consumer<T> {
         Objects.requireNonNull(f);
         return arg -> accept(f.apply(arg));
     }
+
+    static <T> Consumer<T> of(java.util.function.Consumer<T> consumer) {
+        return consumer::accept;
+    }
 }

@@ -16,4 +16,8 @@ public interface Supplier<T> extends java.util.function.Supplier<T> {
         Objects.requireNonNull(f);
         return () -> f.apply(get());
     }
+
+    static <T> Supplier<T> of(java.util.function.Supplier<T> supplier) {
+        return supplier::get;
+    }
 }
