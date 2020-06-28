@@ -333,7 +333,7 @@ public interface Stream<T> extends Iterable<T> {
     default Iterator<T> iterator() {
         final Stream<T> $this = this;
 
-        return new Iterator<T>() {
+        return new Iterator<>() {
 
             private Stream<T> owner = $this;
 
@@ -381,7 +381,7 @@ public interface Stream<T> extends Iterable<T> {
     default Spliterator<T> spliterator() {
         final Stream<T> owner = this;
 
-        return new Spliterator<T>() {
+        return new Spliterator<>() {
 
             private Stream<T> stream = owner;
 
