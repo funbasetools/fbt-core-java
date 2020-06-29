@@ -58,17 +58,28 @@ public final class Streams {
         return fromIterable(iterable);
     }
 
+    public static <T> Stream<T> of(final java.util.stream.Stream<T> stream) {
+        return new Stream<>() {
+            @Override
+            public Optional<T> getHeadOption() {
+                return stream.findFirst();
+            }
+
+            @Override
+            public Stream<T> getTail() {
+                return isEmpty()
+                    ? emptyStream()
+                    : of(stream.skip(1));
+            }
+        };
+    }
+
     public static <T> Stream<T> fromIterable(final Iterable<T> iterable) {
         if (iterable instanceof Stream) {
             return (Stream<T>) iterable;
         }
 
-        final Stream.Builder<T> builder = new Stream.Builder<>();
-        for (T it: iterable) {
-            builder.append(it);
-        }
-
-        return builder.build();
+        return fromIterator(iterable.iterator());
     }
 
     public static Stream<Character> of(final CharSequence charSequence) {
@@ -142,6 +153,12 @@ public final class Streams {
     }
 
     // Private methods
+
+    private static <T> Stream<T> fromIterator(final Iterator<T> iterator) {
+        return iterator.hasNext()
+            ? of(iterator.next(), () -> fromIterator(iterator))
+            : emptyStream();
+    }
 
     private static Stream<Character> of(final CharSequence charSequence, final int atPosition) {
         final int length = charSequence.length();
