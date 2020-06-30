@@ -1,11 +1,20 @@
 package com.funbasetools.collections;
 
 import com.funbasetools.Lazy;
+import com.funbasetools.collections.internal.ConsStream;
+import com.funbasetools.collections.internal.EmptyStream;
+import com.funbasetools.collections.internal.FilteredStream;
+import com.funbasetools.collections.internal.LazyTailStream;
+import com.funbasetools.collections.internal.MappedStream;
+import com.funbasetools.collections.internal.ZippedStream;
+import java.util.Iterator;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigInteger;
-import java.util.*;
-import java.util.function.*;
 
 public final class Streams {
 
@@ -130,7 +139,7 @@ public final class Streams {
         final boolean isTrue
     ) {
         return baseStream.nonEmpty()
-            ? new FilteredStream<>(baseStream, predicate, isTrue)
+            ? FilteredStream.of(baseStream, predicate, isTrue)
             : emptyStream();
     }
 
@@ -139,7 +148,7 @@ public final class Streams {
         final Function<T, R> mapFunction
     ) {
         return baseStream.nonEmpty()
-            ? new MappedStream<>(baseStream, mapFunction)
+            ? MappedStream.of(baseStream, mapFunction)
             : emptyStream();
     }
 
@@ -148,7 +157,7 @@ public final class Streams {
         final Stream<B> bStream
     ) {
         return aStream.nonEmpty() && bStream.nonEmpty()
-            ? new ZippedStream<>(aStream, bStream)
+            ? ZippedStream.of(aStream, bStream)
             : emptyStream();
     }
 
@@ -167,247 +176,5 @@ public final class Streams {
         }
 
         return of(charSequence.charAt(atPosition), () -> of(charSequence, atPosition + 1));
-    }
-
-    // Private types
-
-    private static final class EmptyStream<T> implements Stream<T> {
-
-        public static final EmptyStream<?> singleton = new EmptyStream<>();
-
-        public static <A> EmptyStream<A> getInstance() {
-            @SuppressWarnings("unchecked")
-            final EmptyStream<A> emptyStream = (EmptyStream<A>) singleton;
-
-            return emptyStream;
-        }
-
-        private EmptyStream() { }
-
-        @Override
-        public Optional<T> getHeadOption() {
-            return Optional.empty();
-        }
-
-        @Override
-        public Stream<T> getTail() {
-            return this;
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return true;
-        }
-
-        @Override
-        public boolean nonEmpty() {
-            return false;
-        }
-
-        @Override
-        public Spliterator<T> spliterator() {
-            return new Spliterator<>() {
-
-                @Override
-                public boolean tryAdvance(Consumer<? super T> action) {
-                    return false;
-                }
-
-                @Override
-                public Spliterator<T> trySplit() {
-                    return this;
-                }
-
-                @Override
-                public long estimateSize() {
-                    return 0;
-                }
-
-                @Override
-                public int characteristics() {
-                    return Spliterator.NONNULL
-                        | Spliterator.SIZED
-                        | Spliterator.SUBSIZED
-                        | Spliterator.DISTINCT
-                        | Spliterator.ORDERED
-                        | Spliterator.IMMUTABLE;
-                }
-            };
-        }
-
-        @Override
-        public String toString() {
-            return "[]";
-        }
-    }
-
-    private static abstract class NonEmptyStream<T> implements Stream<T> {
-
-        private final T head;
-
-        protected NonEmptyStream(final T head) {
-            this.head = head;
-        }
-
-        public T getHead() {
-            return head;
-        }
-
-        @Override
-        public Optional<T> getHeadOption() {
-            return Optional.ofNullable(head);
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return false;
-        }
-
-        @Override
-        public boolean nonEmpty() {
-            return true;
-        }
-
-        @Override
-        public String toString() {
-
-            final int maxCountToShow = 3;
-
-            final Pair<List<String>, Stream<String>> pair = this
-                .map(Objects::toString)
-                .takeAndDrop(maxCountToShow);
-
-            final List<String> firstItemList = pair.getLeft();
-
-            final boolean hasMoreThanThat = pair.getRight().nonEmpty();
-
-            final String wholeString = hasMoreThanThat ? "[ %s, ...]" : "[ %s ]";
-
-            return String.format(wholeString, String.join(", ", firstItemList));
-        }
-    }
-
-    private static final class ConsStream<T> extends NonEmptyStream<T> {
-
-        public static <T> Stream<T> create(T head, Stream<T> tail) {
-            return new ConsStream<>(head, tail);
-        }
-
-        private final Stream<T> tail;
-
-        private ConsStream(T head, Stream<T> tail) {
-            super(head);
-            this.tail = tail;
-        }
-
-        @Override
-        public Stream<T> getTail() {
-            return tail;
-        }
-    }
-
-    private static final class LazyTailStream<T> extends NonEmptyStream<T> {
-
-        public static <T> Stream<T> create(T head, Lazy<Stream<T>> lazyTail) {
-            return new LazyTailStream<>(head, lazyTail);
-        }
-
-        private final Lazy<Stream<T>> lazyTail;
-
-        private LazyTailStream(T head, Lazy<Stream<T>> lazyTail) {
-            super(head);
-            this.lazyTail = lazyTail;
-        }
-
-        @Override
-        public Stream<T> getTail() {
-            return lazyTail.get();
-        }
-
-        public Lazy<Stream<T>> getLazyTail() {
-            return lazyTail;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("[ %s, ...]", getHead().toString());
-        }
-    }
-
-    private static final class FilteredStream<T> implements Stream<T> {
-
-        private final Lazy<Optional<T>> lazyHead;
-        private final Lazy<Stream<T>> lazyTail;
-
-        private FilteredStream(final Stream<T> baseStream, final Predicate<T> predicate, final boolean isTrue) {
-
-            final Lazy<Stream<T>> streamWithFirstMatch = Lazy.of(() ->
-                baseStream.foldLeftWhile(
-                    baseStream,
-                    (r, it) -> predicate.test(it) != isTrue,
-                    (r, it) -> r.getTail()
-                )
-            );
-
-            lazyHead = Lazy.of(() -> streamWithFirstMatch.get().getHeadOption());
-            lazyTail = Lazy.of(() -> withFilter(streamWithFirstMatch.get().getTail(), predicate, isTrue));
-        }
-
-        @Override
-        public Optional<T> getHeadOption() {
-            return lazyHead.get();
-        }
-
-        @Override
-        public Stream<T> getTail() {
-            return lazyTail.get();
-        }
-    }
-
-    private static final class MappedStream<T, R> implements Stream<R> {
-
-        private final Lazy<Optional<R>> lazyHead;
-        private final Lazy<Stream<R>> lazyTail;
-
-        private MappedStream(final Stream<T> baseStream, final Function<T, R> mapFunction) {
-            this.lazyHead = Lazy.of(() -> baseStream.getHeadOption().map(mapFunction));
-            lazyTail = Lazy.of(() -> withMapFunction(baseStream.getTail(), mapFunction));
-        }
-
-        @Override
-        public Optional<R> getHeadOption() {
-            return lazyHead.get();
-        }
-
-        @Override
-        public Stream<R> getTail() {
-            return lazyTail.get();
-        }
-    }
-
-    private static final class ZippedStream<A, B> implements Stream<Pair<A, B>> {
-
-        private final Stream<A> aStream;
-        private final Stream<B> bStream;
-
-        private ZippedStream(final Stream<A> aStream, final Stream<B> bStream) {
-            this.aStream = aStream;
-            this.bStream = bStream;
-        }
-
-        @Override
-        public Optional<Pair<A, B>> getHeadOption() {
-            return aStream
-                .getHeadOption()
-                .flatMap(a -> bStream
-                    .getHeadOption()
-                    .map(b -> Pair.of(a, b))
-                );
-        }
-
-        @Override
-        public Stream<Pair<A, B>> getTail() {
-            return aStream.getTail().zip(bStream.getTail());
-        }
     }
 }
