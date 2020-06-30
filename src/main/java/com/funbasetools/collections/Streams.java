@@ -18,10 +18,6 @@ public final class Streams {
 
     private Streams() { }
 
-    public static <T, IT extends Iterable<T>> Stream<T> flatten(final Stream<IT> stream) {
-        return stream.flatMap(s -> s);
-    }
-
     public static <T> Stream<T> singleton(T head) {
         return of(head, Stream.empty());
     }

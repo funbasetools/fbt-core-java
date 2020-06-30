@@ -29,6 +29,10 @@ public interface Stream<T> extends Iterable<T> {
         return EmptyStream.getInstance();
     }
 
+    static <T, IT extends Iterable<T>> Stream<T> flatten(final Stream<IT> stream) {
+        return stream.flatMap(s -> s);
+    }
+
     Optional<T> getHeadOption();
 
     Stream<T> getTail();
