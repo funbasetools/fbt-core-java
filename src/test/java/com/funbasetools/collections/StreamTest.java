@@ -1,16 +1,19 @@
 package com.funbasetools.collections;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Test;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-
-import static org.junit.Assert.*;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.Test;
 
 public class StreamTest {
 
@@ -40,7 +43,7 @@ public class StreamTest {
 
     @Test
     public void testEmptyStream() {
-        assertEquals("[]", Streams.emptyStream().toString());
+        assertEquals("[]", Stream.empty().toString());
     }
 
     @Test

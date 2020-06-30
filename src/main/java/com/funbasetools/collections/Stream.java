@@ -1,17 +1,33 @@
 package com.funbasetools.collections;
 
+import static com.funbasetools.collections.Streams.of;
+
 import com.funbasetools.ThrowingConsumer;
 import com.funbasetools.TriFunction;
 import com.funbasetools.Try;
 import com.funbasetools.Unit;
+import com.funbasetools.collections.internal.EmptyStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Spliterator;
+import java.util.Stack;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
-import java.util.function.*;
-
-import static com.funbasetools.collections.Streams.of;
-
 public interface Stream<T> extends Iterable<T> {
+
+    static <T> Stream<T> empty() {
+        return EmptyStream.getInstance();
+    }
 
     Optional<T> getHeadOption();
 
@@ -135,8 +151,8 @@ public interface Stream<T> extends Iterable<T> {
 
                     return Streams.of(head, tail);
                 })
-                .orElse(Streams.emptyStream()))
-            .orElse(Streams.emptyStream());
+                .orElse(empty()))
+            .orElse(empty());
     }
 
     default <R> R foldLeft(final R initialValue, final BiFunction<R, T, R> function) {
@@ -425,7 +441,7 @@ public interface Stream<T> extends Iterable<T> {
         private final Stack<T> stackedItems = new Stack<>();
 
         public Stream<T> build() {
-            Stream<T> stream = Streams.emptyStream();
+            Stream<T> stream = empty();
             while (!stackedItems.empty()) {
                 stream = stream.prepend(stackedItems.pop());
             }

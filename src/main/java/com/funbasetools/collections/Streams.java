@@ -2,19 +2,17 @@ package com.funbasetools.collections;
 
 import com.funbasetools.Lazy;
 import com.funbasetools.collections.internal.ConsStream;
-import com.funbasetools.collections.internal.EmptyStream;
 import com.funbasetools.collections.internal.FilteredStream;
 import com.funbasetools.collections.internal.LazyTailStream;
 import com.funbasetools.collections.internal.MappedStream;
 import com.funbasetools.collections.internal.ZippedStream;
+import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.tuple.Pair;
-
-import java.math.BigInteger;
 
 public final class Streams {
 
@@ -24,12 +22,8 @@ public final class Streams {
         return stream.flatMap(s -> s);
     }
 
-    public static <T> Stream<T> emptyStream() {
-        return EmptyStream.getInstance();
-    }
-
     public static <T> Stream<T> singleton(T head) {
-        return of(head, emptyStream());
+        return of(head, Stream.empty());
     }
 
     public static <T> Stream<T> of(T head, Stream<T> tail) {
@@ -55,7 +49,7 @@ public final class Streams {
 
     @SafeVarargs
     public static <A> Stream<A> of(final A... array) {
-        Stream<A> stream = emptyStream();
+        Stream<A> stream = Stream.empty();
         if (array != null) {
             for (int idx = array.length - 1; idx >= 0; idx--) {
                 if (array[idx] != null) {
@@ -81,7 +75,7 @@ public final class Streams {
             @Override
             public Stream<T> getTail() {
                 return isEmpty()
-                    ? emptyStream()
+                    ? Stream.empty()
                     : of(stream.skip(1));
             }
         };
@@ -97,7 +91,7 @@ public final class Streams {
 
     public static Stream<Character> of(final CharSequence charSequence) {
         if (charSequence == null) {
-            return emptyStream();
+            return Stream.empty();
         }
 
         return of(charSequence, 0);
@@ -134,7 +128,7 @@ public final class Streams {
     public static <T> Stream<T> computeWhile(final T initial, Function<T, T> f, Predicate<T> p) {
         return p.test(initial)
             ? of(initial, () -> computeWhile(f.apply(initial), f, p))
-            : emptyStream();
+            : Stream.empty();
     }
 
     public static <T> Stream<T> withFilter(
@@ -144,7 +138,7 @@ public final class Streams {
     ) {
         return baseStream.nonEmpty()
             ? FilteredStream.of(baseStream, predicate, isTrue)
-            : emptyStream();
+            : Stream.empty();
     }
 
     public static <T, R> Stream<R> withMapFunction(
@@ -153,7 +147,7 @@ public final class Streams {
     ) {
         return baseStream.nonEmpty()
             ? MappedStream.of(baseStream, mapFunction)
-            : emptyStream();
+            : Stream.empty();
     }
 
     public static <A, B> Stream<Pair<A, B>> zipStreams(
@@ -162,7 +156,7 @@ public final class Streams {
     ) {
         return aStream.nonEmpty() && bStream.nonEmpty()
             ? ZippedStream.of(aStream, bStream)
-            : emptyStream();
+            : Stream.empty();
     }
 
     // Private methods
@@ -170,13 +164,13 @@ public final class Streams {
     private static <T> Stream<T> fromIterator(final Iterator<T> iterator) {
         return iterator.hasNext()
             ? of(iterator.next(), () -> fromIterator(iterator))
-            : emptyStream();
+            : Stream.empty();
     }
 
     private static Stream<Character> of(final CharSequence charSequence, final int atPosition) {
         final int length = charSequence.length();
         if (atPosition >= length) {
-            return emptyStream();
+            return Stream.empty();
         }
 
         return of(charSequence.charAt(atPosition), () -> of(charSequence, atPosition + 1));
