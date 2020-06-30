@@ -2,7 +2,6 @@ package com.funbasetools.io;
 
 import com.funbasetools.ThrowingRunnable;
 import com.funbasetools.collections.Stream;
-import com.funbasetools.collections.Streams;
 import java.io.Closeable;
 import java.io.IOException;
 
@@ -30,6 +29,6 @@ public interface ResourceStream<T> extends Closeable {
     }
 
     static <T> ResourceStream<T> empty() {
-        return of(Streams.emptyStream());
+        return of(Stream.empty());
     }
 }
