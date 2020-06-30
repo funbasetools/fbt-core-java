@@ -42,11 +42,8 @@ public final class LocalFileSystem {
 
             @Override
             public ResourceStream<String> listObjectNames() {
-                final var resourceStream = listObjects();
-                return ResourceStream.of(
-                    resourceStream.getStream().map(File::getAbsolutePath),
-                    resourceStream::close
-                );
+                return listObjects()
+                    .map(File::getAbsolutePath);
             }
         };
     }
