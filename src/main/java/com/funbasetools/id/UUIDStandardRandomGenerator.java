@@ -1,6 +1,5 @@
 package com.funbasetools.id;
 
-import java.time.Instant;
 import java.util.UUID;
 
 public class UUIDStandardRandomGenerator implements UUIDGenerator {
@@ -11,7 +10,7 @@ public class UUIDStandardRandomGenerator implements UUIDGenerator {
     }
 
     @Override
-    public UUID generate(final Instant instant) {
+    public UUID generate(final Long timestamp) {
         return UUID.randomUUID();
     }
 
