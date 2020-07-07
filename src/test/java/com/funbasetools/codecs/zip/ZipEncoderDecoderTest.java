@@ -1,16 +1,15 @@
 package com.funbasetools.codecs.zip;
 
-import com.funbasetools.collections.Streams;
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
+import com.funbasetools.collections.Streams;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.zip.ZipEntry;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.Test;
 
 public class ZipEncoderDecoderTest {
 

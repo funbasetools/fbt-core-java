@@ -11,13 +11,12 @@ import com.funbasetools.ThrowingFunction;
 import com.funbasetools.Try;
 import com.funbasetools.TryTest;
 import com.funbasetools.Unit;
-import org.junit.Test;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
+import org.junit.Test;
 
 public class WriterTest {
 
