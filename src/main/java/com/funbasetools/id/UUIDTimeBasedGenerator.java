@@ -1,7 +1,6 @@
 package com.funbasetools.id;
 
 import com.funbasetools.BytesUtil;
-import com.funbasetools.Try;
 import com.funbasetools.UtcDateUtils;
 import com.funbasetools.network.NetUtil;
 import java.util.Optional;
@@ -9,22 +8,10 @@ import java.util.UUID;
 
 public class UUIDTimeBasedGenerator implements UUIDGenerator {
 
-    private static byte[] jvmIdentifierBytes;
-    private final long leastSignificantBits;
+    private final static byte[] jvmIdentifierBytes = getJvmIdentifierBytes();
+    private final static long leastSignificantBits = getLeastSignificantBits();
 
     public UUIDTimeBasedGenerator() {
-        this.leastSignificantBits =
-            Try.of(() -> {
-                final byte[] hiBits = new byte[8];
-                System.arraycopy(NetUtil.getAddressBytes(), 0, hiBits, 0, 4);
-                System.arraycopy(getJvmIdentifierBytes(), 0, hiBits, 4, 4);
-                hiBits[6] = (byte)(hiBits[6] & 15);
-                hiBits[6] = (byte)(hiBits[6] | 16);
-
-                return BytesUtil.asLong(hiBits);
-            })
-            .toOptional()
-            .orElse(0L);
     }
 
     @Override
@@ -47,10 +34,16 @@ public class UUIDTimeBasedGenerator implements UUIDGenerator {
     }
 
     private static byte[] getJvmIdentifierBytes() {
-        if (jvmIdentifierBytes == null) {
-            jvmIdentifierBytes = BytesUtil.toByteArray((int) (UtcDateUtils.timestampNow() >>> 8));
-        }
+        return BytesUtil.toByteArray((int) (UtcDateUtils.timestampNow() >>> 8));
+    }
 
-        return jvmIdentifierBytes;
+    private static long getLeastSignificantBits() {
+        final byte[] hiBits = new byte[8];
+        System.arraycopy(NetUtil.getAddressBytes(), 0, hiBits, 0, 4);
+        System.arraycopy(jvmIdentifierBytes, 0, hiBits, 4, 4);
+        hiBits[6] = (byte)(hiBits[6] & 15);
+        hiBits[6] = (byte)(hiBits[6] | 16);
+
+        return BytesUtil.asLong(hiBits);
     }
 }

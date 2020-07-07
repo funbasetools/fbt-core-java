@@ -63,6 +63,14 @@ public interface Stream<T> extends Iterable<T> {
             .orElseGet(getStreamFunc);
     }
 
+    default <R extends T> Stream<R> cast() {
+        return map(it -> {
+            @SuppressWarnings("unchecked")
+            final R casted = (R) it;
+            return casted;
+        });
+    }
+
     default <B> boolean corresponds(final Stream<B> other) {
         return corresponds(other, Objects::equals);
     }

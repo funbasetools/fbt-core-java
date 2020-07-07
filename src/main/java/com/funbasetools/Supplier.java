@@ -7,12 +7,12 @@ public interface Supplier<T> extends java.util.function.Supplier<T> {
 
     T get();
 
-    default Runnable andThen(final Consumer<? super T> consumer) {
+    default Runnable andFinally(final java.util.function.Consumer<? super T> consumer) {
         Objects.requireNonNull(consumer);
         return () -> consumer.accept(get());
     }
 
-    default <R> Supplier<R> andThen(final Function<? super T, ? extends R> f) {
+    default <R> Supplier<R> andThen(final java.util.function.Function<? super T, ? extends R> f) {
         Objects.requireNonNull(f);
         return () -> f.apply(get());
     }
