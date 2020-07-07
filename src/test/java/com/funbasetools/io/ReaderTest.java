@@ -1,5 +1,4 @@
 package com.funbasetools.io;
-
 import static org.junit.Assert.assertArrayEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -12,13 +11,12 @@ import static org.mockito.Mockito.when;
 import com.funbasetools.ThrowingFunction;
 import com.funbasetools.Try;
 import com.funbasetools.TryTest;
-import org.junit.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
+import org.junit.Test;
 
 public class ReaderTest {
 

@@ -1,11 +1,13 @@
 package com.funbasetools;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import java.time.*;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 public class UtcDateUtilsTest {
 

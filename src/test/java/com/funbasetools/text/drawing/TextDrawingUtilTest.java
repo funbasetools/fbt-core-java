@@ -1,8 +1,8 @@
 package com.funbasetools.text.drawing;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 
 public class TextDrawingUtilTest {
 

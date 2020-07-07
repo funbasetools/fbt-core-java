@@ -1,9 +1,9 @@
 package com.funbasetools.security.hashes;
 
+import static org.junit.Assert.assertEquals;
+
 import com.funbasetools.codecs.text.HexText;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class HashAlgorithmsTest {
 
