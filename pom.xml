@@ -6,7 +6,7 @@
 
     <groupId>com.funbasetools</groupId>
     <artifactId>fbt-core-java</artifactId>
-    <version>0.1.6</version>
+    <version>0.1.7-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>FBT Core Java</name>
     <description>Foundational Java Library</description>
