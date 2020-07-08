@@ -4,12 +4,13 @@ import com.funbasetools.ShouldNotReachThisPointException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Optional;
 
 @FunctionalInterface
 public interface HashAlgorithm {
 
-    byte[] computeHash(final ByteArrayInputStream inputStream) throws IOException;
+    byte[] computeHash(final InputStream inputStream) throws IOException;
 
     default byte[] computeBytesHash(final byte[] bytes) {
         final byte[] normalizedBytes = Optional
