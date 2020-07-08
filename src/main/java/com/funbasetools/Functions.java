@@ -15,6 +15,10 @@ public final class Functions {
         return of(Optional::ofNullable);
     }
 
+    public static <T, R> Function<Optional<T>, Optional<R>> mapFunc(final java.util.function.Function<T, R> f) {
+        return of(opt -> opt.map(f));
+    }
+
     public static <T> Function<Optional<T>, T> orElseGetFunc(final java.util.function.Supplier<T> defaultFunc) {
         return opt -> opt.orElseGet(defaultFunc);
     }

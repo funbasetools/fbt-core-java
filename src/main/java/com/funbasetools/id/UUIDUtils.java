@@ -39,6 +39,10 @@ public final class UUIDUtils {
         return toUnixTimestamp(uuidTimestamp);
     }
 
+    public static long unixTimestampOfHibernateCustomVersionOne(final UUID uuid) {
+        return (uuid.getLeastSignificantBits() >>> 16) & 0x0FFFFFFFFFFFL;
+    }
+
     // private methods
 
     private static long toUnixTimestamp(final long timestamp) {
