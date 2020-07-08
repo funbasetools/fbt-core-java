@@ -105,15 +105,27 @@ public abstract class Try<T> {
         return this;
     }
 
-    public  <E extends Exception> Try<T> ifFailureWith(
+    public <E extends Exception> Try<T> ifFailureWith(
         final Class<E> exClass,
         final Consumer<E> catchConsumer) {
 
         toFailureOptional()
             .filter(ex -> exClass.isAssignableFrom(ex.getClass()))
-            .ifPresent(ex -> catchConsumer.accept(exClass.cast(ex)));
+            .map(exClass::cast)
+            .ifPresent(catchConsumer);
 
         return this;
+    }
+
+    public <E extends Exception> Try<T> recoverIfFailureWith(
+        final Class<E> exClass,
+        final Function<E, Try<T>> recoverFunc) {
+
+        return toFailureOptional()
+            .filter(ex -> exClass.isAssignableFrom(ex.getClass()))
+            .map(exClass::cast)
+            .map(recoverFunc)
+            .orElse(this);
     }
 
     public <R> Try<R> flatMap(final Function<T, Try<R>> f) {
