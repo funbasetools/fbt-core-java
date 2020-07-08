@@ -31,4 +31,18 @@ public class UUIDUtilsTest {
         // then
         assertEquals(time, timestamp);
     }
+
+    @Test
+    public void testHibernateCustomVersionOneTimestamp() {
+        // given
+        final UUID uuid = UUID.fromString("c0a86301-732f-1b81-8173-2fbb81bd0000");
+        final long expectedTimestamp = 1594233684413L;
+
+
+        // when
+        final long timestamp = UUIDUtils.unixTimestampOfHibernateCustomVersionOne(uuid);
+
+        // then
+        assertEquals(expectedTimestamp, timestamp);
+    }
 }
