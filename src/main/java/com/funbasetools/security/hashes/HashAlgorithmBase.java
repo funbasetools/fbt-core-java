@@ -1,12 +1,12 @@
 package com.funbasetools.security.hashes;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 public abstract class HashAlgorithmBase implements HashAlgorithm {
 
     @Override
-    public byte[] computeHash(final ByteArrayInputStream inputStream) throws IOException {
+    public byte[] computeHash(final InputStream inputStream) throws IOException {
         final Object hash = initHash();
         final byte[] buffer = new byte[4096];
         int read;
