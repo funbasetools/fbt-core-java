@@ -177,6 +177,32 @@ public class TryTest {
     }
 
     @Test
+    public void testRecoverIfFailureWith() {
+        // given
+        final Try<Object> res = Try.failure(new IOException());
+        final Try<Object> recoverFromNPE = Try.success(new Object());
+        final Try<Object> recoverFromIOE = Try.success(new Object());
+
+        @SuppressWarnings("unchecked")
+        final Function<IOException, Try<Object>> recoverFromIOException = mock(Function.class);
+        when(recoverFromIOException.apply(any(IOException.class))).thenReturn(recoverFromIOE);
+
+        @SuppressWarnings("unchecked")
+        final Function<NullPointerException, Try<Object>> recoverFromNullException = mock(Function.class);
+        when(recoverFromNullException.apply(any(NullPointerException.class))).thenReturn(recoverFromNPE);
+
+        // when
+        final Try<Object> afterCall = res
+            .recoverIfFailureWith(NullPointerException.class, recoverFromNullException)
+            .recoverIfFailureWith(IOException.class, recoverFromIOException);
+
+        // then
+        verify(recoverFromNullException, never()).apply(any());
+        verify(recoverFromIOException, times(1)).apply(any());
+        assertEquals(recoverFromIOE, afterCall);
+    }
+
+    @Test
     public void testFlatMapSuccess() {
         // given
         final Object r1 = new Object();
