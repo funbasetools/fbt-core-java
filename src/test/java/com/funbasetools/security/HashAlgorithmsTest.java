@@ -62,6 +62,24 @@ public class HashAlgorithmsTest {
     }
 
     @Test
+    public void testEmptyDataSha224Hash() {
+        // given
+        final byte[] data = new byte[0];
+        final HashAlgorithm hashAlgorithm = SecurityUtils.getSha224();
+        final String expectedHash = "d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f";
+
+        // when
+        final byte[] hash = hashAlgorithm.computeBytesHash(data);
+
+        // then
+        assertEquals(
+            String.format("Hash should be equal to %s", expectedHash),
+            expectedHash,
+            HexText.getEncoder().encode(hash)
+        );
+    }
+
+    @Test
     public void testEmptyDataSha256Hash() {
         // given
         final byte[] data = new byte[0];
