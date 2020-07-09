@@ -80,6 +80,24 @@ public class HashAlgorithmsTest {
     }
 
     @Test
+    public void testEmptyDataSha384Hash() {
+        // given
+        final byte[] data = new byte[0];
+        final HashAlgorithm hashAlgorithm = SecurityUtils.getSha384();
+        final String expectedHash = "38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b";
+
+        // when
+        final byte[] hash = hashAlgorithm.computeBytesHash(data);
+
+        // then
+        assertEquals(
+            String.format("Hash should be equal to %s", expectedHash),
+            expectedHash,
+            HexText.getEncoder().encode(hash)
+        );
+    }
+
+    @Test
     public void testEmptyDataSha512Hash() {
         // given
         final byte[] data = new byte[0];
