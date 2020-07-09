@@ -1,6 +1,7 @@
 package com.funbasetools.io;
 
 import com.funbasetools.ThrowingBiConsumer;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -15,6 +16,10 @@ public final class IOUtils {
         while (0 < (read = inputStream.read(buffer))) {
             bufferedReadConsumer.accept(buffer, read);
         }
+    }
+
+    public static ByteArrayInputStream toInputStream(final byte[] bytes) {
+        return new ByteArrayInputStream(bytes);
     }
 
     private IOUtils() {

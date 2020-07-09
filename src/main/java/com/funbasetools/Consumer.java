@@ -17,6 +17,10 @@ public interface Consumer<T> extends java.util.function.Consumer<T> {
         return arg -> accept(f.apply(arg));
     }
 
+    default Runnable curry(final T arg) {
+        return () -> accept(arg);
+    }
+
     static <T> Consumer<T> of(java.util.function.Consumer<T> consumer) {
         return consumer::accept;
     }
