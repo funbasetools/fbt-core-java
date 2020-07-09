@@ -177,18 +177,20 @@ public class TryTest {
     }
 
     @Test
-    public void testRecoverIfFailureWith() {
+    public void testRecoverIfFailureWith() throws Exception {
         // given
         final Try<Object> res = Try.failure(new IOException());
-        final Try<Object> recoverFromNPE = Try.success(new Object());
-        final Try<Object> recoverFromIOE = Try.success(new Object());
+        final Object recoverFromNPE = new Object();
+        final Object recoverFromIOE = new Object();
 
         @SuppressWarnings("unchecked")
-        final Function<IOException, Try<Object>> recoverFromIOException = mock(Function.class);
+        final ThrowingFunction<IOException, Object, Exception> recoverFromIOException =
+            mock(ThrowingFunction.class);
         when(recoverFromIOException.apply(any(IOException.class))).thenReturn(recoverFromIOE);
 
         @SuppressWarnings("unchecked")
-        final Function<NullPointerException, Try<Object>> recoverFromNullException = mock(Function.class);
+        final ThrowingFunction<NullPointerException, Object, Exception> recoverFromNullException =
+            mock(ThrowingFunction.class);
         when(recoverFromNullException.apply(any(NullPointerException.class))).thenReturn(recoverFromNPE);
 
         // when
@@ -199,7 +201,7 @@ public class TryTest {
         // then
         verify(recoverFromNullException, never()).apply(any());
         verify(recoverFromIOException, times(1)).apply(any());
-        assertEquals(recoverFromIOE, afterCall);
+        assertEquals(recoverFromIOE, afterCall.toOptional().orElse(null));
     }
 
     @Test
