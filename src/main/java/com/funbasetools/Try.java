@@ -117,14 +117,14 @@ public abstract class Try<T> {
         return this;
     }
 
-    public <E extends Exception> Try<T> recoverIfFailureWith(
+    public <E extends Exception, E1 extends Exception> Try<T> recoverIfFailureWith(
         final Class<E> exClass,
-        final Function<E, Try<T>> recoverFunc) {
+        final ThrowingFunction<E, T, E1> recoverFunc) {
 
         return toFailureOptional()
             .filter(ex -> exClass.isAssignableFrom(ex.getClass()))
             .map(exClass::cast)
-            .map(recoverFunc)
+            .map(ex -> Try.of(() -> recoverFunc.apply(ex)))
             .orElse(this);
     }
 
