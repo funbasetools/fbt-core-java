@@ -1,13 +1,10 @@
 package com.funbasetools.codecs.zip;
 
+import static com.funbasetools.io.IOUtils.toInputStream;
+
 import com.funbasetools.Try;
 import com.funbasetools.codecs.ToBinaryCollectionEncoder;
 import com.funbasetools.collections.Stream;
-import lombok.Builder;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.tuple.Pair;
-
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,6 +14,9 @@ import java.util.Optional;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import lombok.Builder;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class ZipEncoder implements ToBinaryCollectionEncoder<Map.Entry<String, InputStream>> {
 
@@ -43,7 +43,7 @@ public class ZipEncoder implements ToBinaryCollectionEncoder<Map.Entry<String, I
 
         Try.of(() -> {
             final Stream<Map.Entry<String, InputStream>> mappedEntries = entries
-                .map(entry -> Pair.of(entry.getKey(), new ByteArrayInputStream(entry.getValue())));
+                .map(entry -> Pair.of(entry.getKey(), toInputStream(entry.getValue())));
 
             encodeTo(mappedEntries, byteArrayOutputStream);
         });
@@ -66,7 +66,7 @@ public class ZipEncoder implements ToBinaryCollectionEncoder<Map.Entry<String, I
         final byte[] entryContent,
         final ZipOutputStream zipOutputStream) throws IOException {
 
-        encodeEntry(key, new ByteArrayInputStream(entryContent), zipOutputStream);
+        encodeEntry(key, toInputStream(entryContent), zipOutputStream);
     }
 
     public void encodeEntry(

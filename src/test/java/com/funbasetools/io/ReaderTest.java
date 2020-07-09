@@ -1,4 +1,5 @@
 package com.funbasetools.io;
+import static com.funbasetools.io.IOUtils.toInputStream;
 import static org.junit.Assert.assertArrayEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -27,7 +28,7 @@ public class ReaderTest {
 
         @SuppressWarnings("unchecked")
         final Function<String, ByteArrayInputStream> openInputStream = mock(Function.class);
-        when(openInputStream.apply(any())).thenReturn(new ByteArrayInputStream(resourceContent));
+        when(openInputStream.apply(any())).thenReturn(toInputStream(resourceContent));
 
         final Reader reader = openInputStream::apply;
 
@@ -67,7 +68,7 @@ public class ReaderTest {
 
         @SuppressWarnings("unchecked")
         final Function<String, ByteArrayInputStream> openReadStream = mock(Function.class);
-        when(openReadStream.apply(any())).thenReturn(new ByteArrayInputStream(content.getBytes(utf8)));
+        when(openReadStream.apply(any())).thenReturn(toInputStream(content.getBytes(utf8)));
 
         final Reader reader = openReadStream::apply;
 

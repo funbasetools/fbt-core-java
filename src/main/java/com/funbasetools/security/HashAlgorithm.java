@@ -1,9 +1,10 @@
 package com.funbasetools.security;
 
+import static com.funbasetools.io.IOUtils.toInputStream;
+
 import com.funbasetools.Algorithm;
 import com.funbasetools.ShouldNotReachThisPointException;
-
-import java.io.ByteArrayInputStream;
+import com.funbasetools.Try;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
@@ -17,11 +18,9 @@ public interface HashAlgorithm extends Algorithm {
             .ofNullable(bytes)
             .orElse(new byte[0]);
 
-        try (final ByteArrayInputStream inputStream = new ByteArrayInputStream(normalizedBytes)) {
-            return computeHash(inputStream);
-        }
-        catch (IOException ex) {
-            throw new ShouldNotReachThisPointException(ex);
-        }
+        return Try
+            .of(() -> computeHash(toInputStream(normalizedBytes)))
+            .toOptional()
+            .orElseThrow(ShouldNotReachThisPointException::new);
     }
 }

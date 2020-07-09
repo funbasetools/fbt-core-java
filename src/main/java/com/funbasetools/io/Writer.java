@@ -1,14 +1,14 @@
 package com.funbasetools.io;
 
+import static com.funbasetools.io.IOUtils.toInputStream;
+
 import com.funbasetools.Try;
 import com.funbasetools.Unit;
-import org.apache.commons.io.IOUtils;
-
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import org.apache.commons.io.IOUtils;
 
 @FunctionalInterface
 public interface Writer {
@@ -24,13 +24,7 @@ public interface Writer {
     }
 
     default Try<Unit> writeAllBytes(final String resource, final byte[] bytes) {
-        return Try.flatten(
-            Try.of(() -> {
-                try (final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes)) {
-                    return writeAll(resource, byteArrayInputStream);
-                }
-            })
-        );
+        return writeAll(resource, toInputStream(bytes));
     }
 
     default Try<Unit> writeAllText(final String resource, final String text, final Charset charset) {

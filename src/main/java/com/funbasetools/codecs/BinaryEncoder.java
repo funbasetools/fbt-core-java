@@ -1,8 +1,8 @@
 package com.funbasetools.codecs;
 
-import com.funbasetools.ShouldNotReachThisPointException;
+import static com.funbasetools.io.IOUtils.toInputStream;
 
-import java.io.ByteArrayInputStream;
+import com.funbasetools.ShouldNotReachThisPointException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,8 +12,7 @@ public interface BinaryEncoder extends ToBinaryEncoder<byte[]> {
     @Override
     default void encodeTo(final byte[] source, final OutputStream outputStream) {
         try {
-            final ByteArrayInputStream inputStream = new ByteArrayInputStream(source);
-            encode(inputStream, outputStream);
+            encode(toInputStream(source), outputStream);
         }
         catch (IOException ex) {
             throw new ShouldNotReachThisPointException(ex);

@@ -20,4 +20,8 @@ public interface ThrowingConsumer<T, E extends Exception> {
     default <R> ThrowingConsumer<R, Exception> compose(final ThrowingFunction<? super R, ? extends T, ? extends Exception> g) {
         return arg -> accept(g.apply(arg));
     }
+
+    default ThrowingRunnable<E> curry(final T arg) {
+        return () -> accept(arg);
+    }
 }
