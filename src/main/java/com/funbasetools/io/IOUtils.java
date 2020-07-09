@@ -1,14 +1,14 @@
 package com.funbasetools.io;
 
+import com.funbasetools.ThrowingBiConsumer;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.function.BiConsumer;
 
 public final class IOUtils {
 
-    public static void readAllBytesWithBuffer(
+    public static <E extends Exception> void readAllBytesWithBuffer(
         final InputStream inputStream,
-        final BiConsumer<byte[], Integer> bufferedReadConsumer) throws IOException {
+        final ThrowingBiConsumer<byte[], Integer, E> bufferedReadConsumer) throws IOException, E {
 
         final byte[] buffer = new byte[4096];
         int read;
