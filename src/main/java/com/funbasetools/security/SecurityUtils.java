@@ -38,6 +38,13 @@ public class SecurityUtils {
             "SHA-1");
     }
 
+    public static HashAlgorithm getSha224() {
+        return securityAlgorithmFromNameFunc(
+            MessageDigest::getInstance,
+            SecurityUtils::fromMessageDigest,
+            "SHA-224");
+    }
+
     public static HashAlgorithm getSha256() {
         return securityAlgorithmFromNameFunc(
             MessageDigest::getInstance,
