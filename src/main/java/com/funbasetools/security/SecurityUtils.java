@@ -17,33 +17,46 @@ public class SecurityUtils {
 
     public static HashAlgorithm getCrc32() {
         final String name = "CRC32";
-        return fromNameFunc(ignored -> new CRC32(), crc32 -> fromChecksum(crc32, name))
-            .apply(name);
+
+        return securityAlgorithmFromNameFunc(
+            ignored -> new CRC32(),
+            crc32 -> fromChecksum(crc32, name),
+            name);
     }
 
     public static HashAlgorithm getMd5() {
-        return fromNameFunc(MessageDigest::getInstance, SecurityUtils::fromMessageDigest)
-            .apply("MD5");
+        return securityAlgorithmFromNameFunc(
+            MessageDigest::getInstance,
+            SecurityUtils::fromMessageDigest,
+            "MD5");
     }
 
     public static HashAlgorithm getSha1() {
-        return fromNameFunc(MessageDigest::getInstance, SecurityUtils::fromMessageDigest)
-            .apply("SHA-1");
+        return securityAlgorithmFromNameFunc(
+            MessageDigest::getInstance,
+            SecurityUtils::fromMessageDigest,
+            "SHA-1");
     }
 
     public static HashAlgorithm getSha256() {
-        return fromNameFunc(MessageDigest::getInstance, SecurityUtils::fromMessageDigest)
-            .apply("SHA-256");
+        return securityAlgorithmFromNameFunc(
+            MessageDigest::getInstance,
+            SecurityUtils::fromMessageDigest,
+            "SHA-256");
     }
 
     public static HashAlgorithm getSha384() {
-        return fromNameFunc(MessageDigest::getInstance, SecurityUtils::fromMessageDigest)
-            .apply("SHA-384");
+        return securityAlgorithmFromNameFunc(
+            MessageDigest::getInstance,
+            SecurityUtils::fromMessageDigest,
+            "SHA-384");
     }
 
     public static HashAlgorithm getSha512() {
-        return fromNameFunc(MessageDigest::getInstance, SecurityUtils::fromMessageDigest)
-            .apply("SHA-512");
+        return securityAlgorithmFromNameFunc(
+            MessageDigest::getInstance,
+            SecurityUtils::fromMessageDigest,
+            "SHA-512");
     }
 
     public static HashAlgorithm fromChecksum(final Checksum checksum, final String checksumName) {
@@ -86,12 +99,13 @@ public class SecurityUtils {
         };
     }
 
-    private static <HA extends HashAlgorithm, A> Function<String, HashAlgorithm> fromNameFunc(
+    public static <HA, A> HA securityAlgorithmFromNameFunc(
         final ThrowingFunction<String, A, GeneralSecurityException> getAlgorithmFromName,
-        final Function<A, HA> getHashAlgorithm) {
+        final Function<A, HA> getHashAlgorithm,
+        final String algorithmName) {
 
-        return name -> Try
-            .of(() -> getAlgorithmFromName.apply(name))
+        return Try
+            .of(() -> getAlgorithmFromName.apply(algorithmName))
             .recoverIfFailureWith(GeneralSecurityException.class, gse -> {
                 throw new IllegalArgumentException(gse);
             })
