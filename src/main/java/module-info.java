@@ -13,7 +13,7 @@ module fbt.core.java {
     exports com.funbasetools.io;
     exports com.funbasetools.network;
     exports com.funbasetools.pipes;
-    exports com.funbasetools.security.hashes;
+    exports com.funbasetools.security;
     exports com.funbasetools.text.drawing;
     exports com.funbasetools.text.drawing.tables;
 }

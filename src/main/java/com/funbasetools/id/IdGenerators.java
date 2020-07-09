@@ -5,7 +5,7 @@ import static com.funbasetools.Functions.orElseGetFunc;
 
 import com.funbasetools.codecs.text.Base64Encoder;
 import com.funbasetools.codecs.text.HexText;
-import com.funbasetools.security.hashes.HashAlgorithm;
+import com.funbasetools.security.HashAlgorithm;
 
 public final class IdGenerators {
 
