@@ -61,7 +61,7 @@ public class StreamTest {
         // then
         assertArrayEquals(
             new Object[] { 1, 2, 3 },
-            stream.take(Integer.MAX_VALUE).toArray()
+            stream.take(100).toArray()
         );
     }
 
