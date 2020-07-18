@@ -66,6 +66,22 @@ public class StreamTest {
     }
 
     @Test
+    public void testCreateStreamWithNulls() {
+        // given
+        final Stream<Integer> stream = Streams.of(1, 2, 3, null, 5, null);
+
+        // when
+        final List<Integer> list = stream.take(10);
+
+        // then
+        assertEquals(4, list.size());
+        assertEquals(Integer.valueOf(1), list.get(0));
+        assertEquals(Integer.valueOf(2), list.get(1));
+        assertEquals(Integer.valueOf(3), list.get(2));
+        assertEquals(Integer.valueOf(5), list.get(3));
+    }
+
+    @Test
     public void testSingletonStream() {
         assertEquals("[ abc ]", Streams.singleton("abc").toString());
     }
@@ -195,6 +211,22 @@ public class StreamTest {
         assertArrayEquals(
             new Object[]{ 2.5, 5.0, 7.5, 10.0, 12.5 },
             mappedStream.take(5).toArray()
+        );
+    }
+
+    @Test
+    public void testMappingWithNulls() {
+        // given
+        final Stream<Integer> stream = Streams.of(1, 2, 3, null, 5, null);
+
+        // when
+        final Stream<String> mappedStream = stream.map(v -> v % 2 != 0 ? v.toString() : null);
+        final List<String> list = mappedStream.take(10);
+
+        // then
+        assertArrayEquals(
+            new String[]{ "1", "3", "5" },
+            list.toArray()
         );
     }
 
