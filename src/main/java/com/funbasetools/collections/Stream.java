@@ -282,7 +282,7 @@ public interface Stream<T> extends Iterable<T> {
 
     default List<T> take(final int count) {
         return foldLeftWhile(
-            new ArrayList<>(StrictMath.min(100, count)),
+            new ArrayList<>(count),
             (r, it) -> r.size() < count,
             (r, it) ->  {
                 r.add(it);
@@ -293,7 +293,7 @@ public interface Stream<T> extends Iterable<T> {
 
     default Pair<List<T>, Stream<T>> takeAndDrop(final int count) {
         return foldLeftWhile(
-            Pair.of(new ArrayList<>(StrictMath.min(100, count)), this),
+            Pair.of(new ArrayList<>(count), this),
             (pair, it) -> pair.getLeft().size() < count,
             (pair, it) -> {
                 pair.getLeft().add(it);
