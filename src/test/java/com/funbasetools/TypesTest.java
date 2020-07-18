@@ -7,7 +7,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-import com.funbasetools.collections.Streams;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
 
 public class TypesTest {
@@ -56,37 +57,128 @@ public class TypesTest {
     }
 
     @Test
-    public void testAsArrayOfReturnsCastedArray() {
+    public void testFlexibleAsArrayOfReturnsCastedArray() {
         // given
-        final Object obj = new String[] {
+        final Object obj = new Object[] {
             "str1",
             "str2",
+            10,
             "str3",
+            null,
         };
 
         // when
-        final String[] array = Types.asArrayOf(String.class, obj);
+        final String[] array = Types.asArrayOf(String.class, false, obj);
 
         // then
         assertNotNull(array);
         assertEquals(3, array.length);
-        assertTrue(Streams.of(array).corresponds(Streams.of((Object[])obj)));
+        assertEquals("str1", array[0]);
+        assertEquals("str2", array[1]);
+        assertEquals("str3", array[2]);
     }
 
     @Test
-    public void testAsArrayOfReturnsNull() {
+    public void testStrictAsArrayOfReturnsCastedArray() {
         // given
-        final Object obj = new String[] {
+        final Object obj = new Object[] {
             "str1",
             "str2",
             "str3",
         };
 
         // when
-        final Integer[] array = Types.asArrayOf(Integer.class, obj);
+        final String[] array = Types.asArrayOf(String.class, true, obj);
+
+        // then
+        assertNotNull(array);
+        assertEquals(3, array.length);
+        assertEquals("str1", array[0]);
+        assertEquals("str2", array[1]);
+        assertEquals("str3", array[2]);
+    }
+
+    @Test
+    public void testStrictAsArrayOfReturnsNull() {
+        // given
+        final Object obj = new Object[] {
+            "str1",
+            "str2",
+            10,
+            "str3",
+            null,
+        };
+
+        // when
+        final String[] array = Types.asArrayOf(String.class, true, obj);
 
         // then
         assertNull(array);
+    }
+
+    @Test
+    public void testFlexibleAsMapOfReturnsCastedMap() {
+        // given
+        final Map<Object, Object> map = new HashMap<>();
+        map.put(10, "str1");
+        map.put(20, "str2");
+        map.put(25, 10);
+        map.put(30, "str3");
+        map.put('a', "str4");
+        map.put(50, null);
+
+        // when
+        final Map<Integer, String> castedMap = Types.asMapOf(Integer.class, String.class, false, map);
+
+        // then
+        assertNotNull(castedMap);
+        assertEquals(3, castedMap.size());
+        assertFalse(castedMap.containsKey(25));
+        assertFalse(castedMap.containsKey(50));
+        assertEquals("str1", castedMap.get(10));
+        assertEquals("str2", castedMap.get(20));
+        assertEquals("str3", castedMap.get(30));
+    }
+
+    @Test
+    public void testStrictAsMapOfReturnsCastedMap() {
+        // given
+        final Map<Object, Object> map = new HashMap<>();
+        map.put(10, "str1");
+        map.put(20, "str2");
+        map.put(30, "str3");
+        map.put(40, "str4");
+        map.put(50, "str5");
+
+        // when
+        final Map<Integer, String> castedMap = Types.asMapOf(Integer.class, String.class, true, map);
+
+        // then
+        assertNotNull(castedMap);
+        assertEquals(5, castedMap.size());
+        assertEquals("str1", castedMap.get(10));
+        assertEquals("str2", castedMap.get(20));
+        assertEquals("str3", castedMap.get(30));
+        assertEquals("str4", castedMap.get(40));
+        assertEquals("str5", castedMap.get(50));
+    }
+
+    @Test
+    public void testStrictAsMapOfReturnsNull() {
+        // given
+        final Map<Object, Object> map = new HashMap<>();
+        map.put(10, "str1");
+        map.put(20, "str2");
+        map.put(25, 10);
+        map.put(30, "str3");
+        map.put('a', "str4");
+        map.put(50, null);
+
+        // when
+        final Map<Integer, String> castedMap = Types.asMapOf(Integer.class, String.class, true, map);
+
+        // then
+        assertNull(castedMap);
     }
 
     @Test
