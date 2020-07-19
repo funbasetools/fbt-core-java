@@ -5,6 +5,22 @@ import java.nio.ByteBuffer;
 
 public final class BytesUtil {
 
+    public static int indexOf(final byte b, final byte[] bytes) {
+        return indexOf(b, bytes, 0);
+    }
+
+    public static int indexOf(final byte b, final byte[] bytes, int offset) {
+        int idx = -1;
+        for (int i = offset; i < bytes.length; i++) {
+            if (bytes[i] == b) {
+                idx = i;
+                break;
+            }
+        }
+
+        return idx;
+    }
+
     public static byte[] toByteArray(short value) {
         return ByteBuffer.allocate(Short.BYTES).putShort(value).array();
     }
