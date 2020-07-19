@@ -1,18 +1,14 @@
 package com.funbasetools.collections;
 
-import com.funbasetools.Lazy;
-import com.funbasetools.collections.internal.ConsStream;
-import com.funbasetools.collections.internal.FilteredStream;
-import com.funbasetools.collections.internal.LazyTailStream;
-import com.funbasetools.collections.internal.MappedStream;
-import com.funbasetools.collections.internal.ZippedStream;
+import com.funbasetools.collections.impl.ConsStream;
+import com.funbasetools.collections.impl.LazyStream;
+import com.funbasetools.collections.impl.LazyTailStream;
 import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import org.apache.commons.lang3.tuple.Pair;
 
 public final class Streams {
 
@@ -22,24 +18,21 @@ public final class Streams {
         return of(head, Stream.empty());
     }
 
-    public static <T> Stream<T> of(T head, Stream<T> tail) {
-        return Optional
-            .ofNullable(head)
-            .map(h -> ConsStream.create(h, tail))
-            .orElse(tail);
+    public static <T> Stream<T> of(final T head, final Stream<T> tail) {
+        return ConsStream.of(head, tail);
     }
 
-    public static <T> Stream<T> of(T head, Lazy<Stream<T>> lazyTail) {
+    public static <T> Stream<T> of(final T head, final com.funbasetools.Supplier<Stream<T>> tailSupplier) {
         return Optional
             .ofNullable(head)
-            .map(h -> LazyTailStream.create(h, lazyTail))
-            .orElse(lazyTail.get());
+            .map(h -> LazyTailStream.of(h, LazyStream.of(tailSupplier)))
+            .orElseGet(tailSupplier);
     }
 
     public static <T> Stream<T> of(T head, Supplier<Stream<T>> getTailFunc) {
         return Optional
             .ofNullable(head)
-            .map(h -> LazyTailStream.create(h, Lazy.of(getTailFunc)))
+            .map(h -> LazyTailStream.of(h, LazyStream.of(getTailFunc)))
             .orElseGet(getTailFunc);
     }
 
@@ -51,6 +44,18 @@ public final class Streams {
                 if (array[idx] != null) {
                     stream = of(array[idx], stream);
                 }
+            }
+        }
+
+        return stream;
+    }
+
+    @SafeVarargs
+    public static <A> Stream<A> ofNullable(final A... array) {
+        Stream<A> stream = Stream.empty();
+        if (array != null) {
+            for (int idx = array.length - 1; idx >= 0; idx--) {
+                stream = of(array[idx], stream);
             }
         }
 
@@ -73,6 +78,16 @@ public final class Streams {
                 return isEmpty()
                     ? Stream.empty()
                     : of(stream.skip(1));
+            }
+
+            @Override
+            public boolean isEmpty() {
+                return stream.findAny().isEmpty();
+            }
+
+            @Override
+            public boolean nonEmpty() {
+                return stream.findAny().isPresent();
             }
         };
     }
@@ -124,34 +139,6 @@ public final class Streams {
     public static <T> Stream<T> computeWhile(final T initial, Function<T, T> f, Predicate<T> p) {
         return p.test(initial)
             ? of(initial, () -> computeWhile(f.apply(initial), f, p))
-            : Stream.empty();
-    }
-
-    public static <T> Stream<T> withFilter(
-        final Stream<T> baseStream,
-        final Predicate<T> predicate,
-        final boolean isTrue
-    ) {
-        return baseStream.nonEmpty()
-            ? FilteredStream.of(baseStream, predicate, isTrue)
-            : Stream.empty();
-    }
-
-    public static <T, R> Stream<R> withMapFunction(
-        final Stream<T> baseStream,
-        final Function<T, R> mapFunction
-    ) {
-        return baseStream.nonEmpty()
-            ? MappedStream.of(baseStream, mapFunction)
-            : Stream.empty();
-    }
-
-    public static <A, B> Stream<Pair<A, B>> zipStreams(
-        final Stream<A> aStream,
-        final Stream<B> bStream
-    ) {
-        return aStream.nonEmpty() && bStream.nonEmpty()
-            ? ZippedStream.of(aStream, bStream)
             : Stream.empty();
     }
 

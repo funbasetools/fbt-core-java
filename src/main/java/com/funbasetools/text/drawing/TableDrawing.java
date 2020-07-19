@@ -15,7 +15,7 @@ public final class TableDrawing {
         final PrintStream printStream) {
 
         final TableDrawingInfo tableInfo = TableDrawingInfo.from(data);
-        Streams.of(tableInfo.getData())
+        Streams.ofNullable(tableInfo.getData())
             .forEachWithIndex((row, rowIdx) -> drawRow(row, rowIdx, tableInfo, borderTemplate, printStream));
     }
 
@@ -29,7 +29,7 @@ public final class TableDrawing {
         final boolean isFirstRow = rowIndex == 0;
         final boolean isLastRow = rowIndex == tableInfo.getRowCount() - 1;
         final int columnCount = tableInfo.getColumnCount();
-        final Stream<Integer> columnLengths = Streams.of(tableInfo.getColumnLengths());
+        final Stream<Integer> columnLengths = Streams.ofNullable(tableInfo.getColumnLengths());
 
         drawRowTopLine(
             borderTemplate,

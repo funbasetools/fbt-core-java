@@ -28,7 +28,7 @@ public class ZipEncoderDecoderTest {
 
         // when
         final byte[] compressed = zipEncoder.encode(
-            Streams.of(Pair.of(entryKey, entryContent.getBytes(utf8)))
+            Streams.ofNullable(Pair.of(entryKey, entryContent.getBytes(utf8)))
         );
         final Map<ZipEntry, byte[]> decompressed = zipDecoder.decode(compressed);
 

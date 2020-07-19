@@ -166,7 +166,7 @@ public enum Border {
         final BorderType bottom,
         final BorderType left
     ) {
-        return Streams.of(values())
+        return Streams.ofNullable(values())
             .first(b ->
                 b.getTop() == top
                 && b.getRight() == right
