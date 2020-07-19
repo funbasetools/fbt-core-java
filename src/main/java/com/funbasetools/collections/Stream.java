@@ -5,8 +5,12 @@ import static com.funbasetools.collections.Streams.of;
 import com.funbasetools.ThrowingConsumer;
 import com.funbasetools.TriFunction;
 import com.funbasetools.Try;
+import com.funbasetools.Types;
 import com.funbasetools.Unit;
-import com.funbasetools.collections.internal.EmptyStream;
+import com.funbasetools.collections.impl.EmptyStream;
+import com.funbasetools.collections.impl.FilteredStream;
+import com.funbasetools.collections.impl.MappedStream;
+import com.funbasetools.collections.impl.ZippedStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -23,7 +27,10 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.tuple.Pair;
 
-public interface Stream<T> extends Iterable<T> {
+public interface Stream<T>
+    extends GenTraversable<T, Stream<T>>,
+            HeadGrowable<T, Stream<T>>,
+            TailGrowable<T, Stream<T>> {
 
     static <T> Stream<T> empty() {
         return EmptyStream.getInstance();
@@ -36,14 +43,6 @@ public interface Stream<T> extends Iterable<T> {
     Optional<T> getHeadOption();
 
     Stream<T> getTail();
-
-    default boolean isEmpty() {
-        return !nonEmpty();
-    }
-
-    default boolean nonEmpty() {
-        return getHeadOption().isPresent();
-    }
 
     default Stream<T> append(final T item) {
         return getHeadOption()
@@ -63,12 +62,8 @@ public interface Stream<T> extends Iterable<T> {
             .orElseGet(getStreamFunc);
     }
 
-    default <R extends T> Stream<R> cast() {
-        return map(it -> {
-            @SuppressWarnings("unchecked")
-            final R casted = (R) it;
-            return casted;
-        });
+    default <R extends T> Stream<R> castTo(final Class<R> type) {
+        return map(it -> Types.as(type, it));
     }
 
     default <B> boolean corresponds(final Stream<B> other) {
@@ -89,14 +84,6 @@ public interface Stream<T> extends Iterable<T> {
         return result;
     }
 
-    default Stream<T> dropWhile(final Predicate<T> predicate) {
-        return dropWhileIf(predicate, true);
-    }
-
-    default Stream<T> dropWhileNot(final Predicate<T> predicate) {
-        return dropWhileIf(predicate, false);
-    }
-
     default Stream<T> dropWhileIf(final Predicate<T> predicate, final boolean isTrue) {
         return foldLeftWhile(
             this,
@@ -105,39 +92,17 @@ public interface Stream<T> extends Iterable<T> {
         );
     }
 
-    default boolean exist(final Predicate<T> predicate) {
-        return existIf(predicate, true);
+    default Stream<T> filterIf(final Predicate<T> predicate, final boolean isTrue) {
+        return FilteredStream.of(this, predicate, isTrue);
     }
 
-    default boolean existNot(final Predicate<T> predicate) {
-        return existIf(predicate, false);
+    default <R> Stream<R> flatMapOptional(final Function<? super T, Optional<R>> f) {
+        return map(f)
+            .filter(Optional::isPresent)
+            .map(Optional::get);
     }
 
-    default boolean existIf(final Predicate<T> predicate, boolean isTrue) {
-        return foldLeftWhile(
-            !isTrue,
-            (r, it) -> r != isTrue,
-            (r, it) -> predicate.test(it) == isTrue
-        );
-    }
-
-    default Stream<T> filter(final Predicate<T> predicate) {
-        return Streams.withFilter(this, predicate, true);
-    }
-
-    default Stream<T> filterNot(final Predicate<T> predicate) {
-        return Streams.withFilter(this, predicate, false);
-    }
-
-    default Optional<T> first(final Predicate<T> predicate) {
-        return nth(0, predicate);
-    }
-
-    default Optional<T> firstNot(final Predicate<T> predicate) {
-        return nthNot(0, predicate);
-    }
-
-    default <R> Stream<R> flatMap(final Function<T, ? extends Iterable<R>> f) {
+    default <R> Stream<R> flatMap(final Function<? super T, ? extends Iterable<R>> f) {
 
         final Stream<Stream<R>> mappedStream = map(it -> of(f.apply(it)));
 
@@ -209,56 +174,17 @@ public interface Stream<T> extends Iterable<T> {
     ) {
         R result = initialValue;
         Stream<T> curr = this;
-        while (curr.getHeadOption().isPresent()
-            && predicate.apply(result, curr.getHeadOption().get())
+        while (curr.nonEmpty() && predicate.apply(result, curr.getHeadOption().orElse(null))
         ) {
-            result = function.apply(result, curr.getHeadOption().get());
+            result = function.apply(result, curr.getHeadOption().orElse(null));
             curr = curr.getTail();
         }
 
         return result;
     }
 
-    default int forEachWhile(final Predicate<T> predicate, final Consumer<T> consumer) {
-        return forEachWhileIf(predicate, consumer, true);
-    }
-
-    default int forEachWhileNot(final Predicate<T> predicate, final Consumer<T> consumer) {
-        return forEachWhileIf(predicate, consumer, false);
-    }
-
-    default int forEachWhileIf(
-        final Predicate<T> predicate, final Consumer<T> consumer,
-        final boolean isTrue
-    ) {
-        return foldLeftWhile(
-            0,
-            (r, it) -> predicate.test(it) == isTrue,
-            (r, it) -> {
-                consumer.accept(it);
-                return r + 1;
-            }
-        );
-    }
-
-    default boolean forAll(final Predicate<T> predicate) {
-        return foldLeftWhile(
-            true,
-            (r, it) -> r,
-            (r, it) -> r && predicate.test(it)
-        );
-    }
-
-    default <R> Stream<R> map(final Function<T, R> function) {
-        return Streams.withMapFunction(this, function);
-    }
-
-    default Optional<T> nth(final int nth, final Predicate<T> predicate) {
-        return nthIf(nth, predicate, true);
-    }
-
-    default Optional<T> nthNot(final int nth, final Predicate<T> predicate) {
-        return nthIf(nth, predicate, false);
+    default <R> Stream<R> map(final Function<? super T, R> function) {
+        return MappedStream.of(this, function);
     }
 
     default Optional<T> nthIf(
@@ -266,8 +192,8 @@ public interface Stream<T> extends Iterable<T> {
         final Predicate<T> predicate,
         final boolean isTrue
     ) {
-        return Streams
-            .withFilter(this, predicate, isTrue)
+        return this
+            .filterIf(predicate, isTrue)
             .drop(nth)
             .getHeadOption();
     }
@@ -280,17 +206,6 @@ public interface Stream<T> extends Iterable<T> {
         return stream.append(this);
     }
 
-    default List<T> take(final int count) {
-        return foldLeftWhile(
-            new ArrayList<>(count),
-            (r, it) -> r.size() < count,
-            (r, it) ->  {
-                r.add(it);
-                return r;
-            }
-        );
-    }
-
     default Pair<List<T>, Stream<T>> takeAndDrop(final int count) {
         return foldLeftWhile(
             Pair.of(new ArrayList<>(count), this),
@@ -298,25 +213,6 @@ public interface Stream<T> extends Iterable<T> {
             (pair, it) -> {
                 pair.getLeft().add(it);
                 return Pair.of(pair.getLeft(), pair.getRight().getTail());
-            }
-        );
-    }
-
-    default List<T> takeWhile(final Predicate<T> predicate) {
-        return takeWhileIf(predicate, true);
-    }
-
-    default List<T> takeWhileNot(final Predicate<T> predicate) {
-        return takeWhileIf(predicate, false);
-    }
-
-    default List<T> takeWhileIf(final Predicate<T> predicate, final boolean isTrue) {
-        return foldLeftWhile(
-            new LinkedList<>(),
-            (r, it) -> predicate.test(it) == isTrue,
-            (r, it) -> {
-                r.addLast(it);
-                return r;
             }
         );
     }
@@ -350,11 +246,11 @@ public interface Stream<T> extends Iterable<T> {
     }
 
     default <W> Stream<Pair<T, W>> zip(Stream<W> other) {
-        return Streams.zipStreams(this, other);
+        return ZippedStream.of(this, other);
     }
 
     default Stream<Pair<T, Integer>> zipWithIndex() {
-        return Streams.zipStreams(this, Streams.from(0));
+        return ZippedStream.of(this, Streams.from(0));
     }
 
     @Override

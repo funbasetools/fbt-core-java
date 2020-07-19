@@ -1,10 +1,10 @@
-package com.funbasetools.collections.internal;
+package com.funbasetools.collections.impl;
 
 import com.funbasetools.collections.Stream;
 
 public final class ConsStream<T> extends NonEmptyStream<T> {
 
-    public static <T> Stream<T> create(T head, Stream<T> tail) {
+    public static <T> Stream<T> of(T head, Stream<T> tail) {
         return new ConsStream<>(head, tail);
     }
 

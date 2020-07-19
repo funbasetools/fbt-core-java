@@ -3,6 +3,7 @@ package com.funbasetools.collections;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -25,7 +26,7 @@ public class StreamTest {
     public void testFactorial() {
         // Given
         final Stream<Integer> factorialSample =
-            Streams.of(1, 2, 6, 24, 120, 720, 5040, 40320, 362880);
+            Streams.ofNullable(1, 2, 6, 24, 120, 720, 5040, 40320, 362880);
 
         // Then
         assertTrue(factorialStream.corresponds(factorialSample));
@@ -35,7 +36,7 @@ public class StreamTest {
     public void testFibonacci() {
         // Given
         final Stream<Integer> fibSample =
-            Streams.of(1, 1, 2, 3, 5, 8, 13, 21, 34);
+            Streams.ofNullable(1, 1, 2, 3, 5, 8, 13, 21, 34);
 
         // Then
         assertTrue(fibonacciStream.corresponds(fibSample));
@@ -82,6 +83,24 @@ public class StreamTest {
     }
 
     @Test
+    public void testCreateNullableStreamWithNulls() {
+        // given
+        final Stream<Integer> stream = Streams.ofNullable(1, 2, 3, null, 5, null);
+
+        // when
+        final List<Integer> list = stream.take(10);
+
+        // then
+        assertEquals(6, list.size());
+        assertEquals(Integer.valueOf(1), list.get(0));
+        assertEquals(Integer.valueOf(2), list.get(1));
+        assertEquals(Integer.valueOf(3), list.get(2));
+        assertNull(list.get(3));
+        assertEquals(Integer.valueOf(5), list.get(4));
+        assertNull(list.get(5));
+    }
+
+    @Test
     public void testSingletonStream() {
         assertEquals("[ abc ]", Streams.singleton("abc").toString());
     }
@@ -104,7 +123,7 @@ public class StreamTest {
     @Test
     public void testAppend() {
         // given
-        final Stream<Integer> baseStream = Streams.of(0, 1, 2);
+        final Stream<Integer> baseStream = Streams.ofNullable(0, 1, 2);
 
         // when
         final Stream<Integer> stream = baseStream.append(3);
@@ -114,9 +133,24 @@ public class StreamTest {
     }
 
     @Test
+    public void testCastTo() {
+        // given
+        final Stream<Object> objStream = Streams.of(1, 2, 3, 4, 5);
+
+        // when
+        final Stream<Integer> intStream = objStream.castTo(Integer.class);
+
+        // then
+        assertArrayEquals(
+            new Integer[] { 1, 2, 3, 4, 5 },
+            intStream.take(10).toArray()
+        );
+    }
+
+    @Test
     public void testExist() {
         // given
-        final Stream<Integer> stream = Streams.of(0, 2, 4, 6, 8);
+        final Stream<Integer> stream = Streams.ofNullable(0, 2, 4, 6, 8);
 
         // then
         assertTrue(stream.exist(v -> v == 2));
@@ -136,8 +170,8 @@ public class StreamTest {
         final Stream<Integer> odds = stream.filterNot(v -> v % 2 == 0);
 
         // then
-        assertTrue(evens.corresponds(Streams.of(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)));
-        assertTrue(odds.corresponds(Streams.of(1, 3, 5, 7, 9, 11, 13, 15, 17, 19)));
+        assertTrue(evens.corresponds(Streams.ofNullable(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)));
+        assertTrue(odds.corresponds(Streams.ofNullable(1, 3, 5, 7, 9, 11, 13, 15, 17, 19)));
     }
 
     @Test
@@ -159,7 +193,7 @@ public class StreamTest {
     @Test
     public void testPrepend() {
         // given
-        final Stream<Integer> baseStream = Streams.of(2, 3);
+        final Stream<Integer> baseStream = Streams.ofNullable(2, 3);
 
         // when
         final Stream<Integer> stream1 = baseStream.prepend(1);
@@ -173,14 +207,14 @@ public class StreamTest {
     @Test
     public void testPrependStream() {
         // given
-        final Stream<Integer> baseStream = Streams.of(2, 3);
+        final Stream<Integer> baseStream = Streams.ofNullable(2, 3);
 
         // when
-        final Stream<Integer> result = baseStream.prepend(Streams.of(0, 1));
+        final Stream<Integer> result = baseStream.prepend(Streams.ofNullable(0, 1));
 
         // then
         assertTrue(
-            result.corresponds(Streams.of(0, 1, 2, 3))
+            result.corresponds(Streams.ofNullable(0, 1, 2, 3))
         );
     }
 
@@ -217,15 +251,15 @@ public class StreamTest {
     @Test
     public void testMappingWithNulls() {
         // given
-        final Stream<Integer> stream = Streams.of(1, 2, 3, null, 5, null);
+        final Stream<Integer> stream = Streams.ofNullable(1, 2, 3, null, 5, null);
 
         // when
-        final Stream<String> mappedStream = stream.map(v -> v % 2 != 0 ? v.toString() : null);
+        final Stream<String> mappedStream = stream.map(v -> v != null && v % 2 != 0 ? v.toString() : null);
         final List<String> list = mappedStream.take(10);
 
         // then
         assertArrayEquals(
-            new String[]{ "1", "3", "5" },
+            new String[]{ "1", null, "3", null, "5", null },
             list.toArray()
         );
     }
@@ -240,7 +274,7 @@ public class StreamTest {
                 : Collections.emptyList();
 
         // when
-        final Stream<Integer> flatMappedStream = stream.flatMap(f); // filter to get even numbers
+        final Stream<Integer> flatMappedStream = stream.flatMap(f);
 
         // then
         assertArrayEquals(
@@ -250,10 +284,29 @@ public class StreamTest {
     }
 
     @Test
+    public void testFlatMappingOptional() {
+        // given
+        final Stream<Integer> stream = Streams.from(1);
+        final Function<Integer, Optional<Integer>> f = v ->
+            (v % 3 == 0)
+                ? Optional.of(v)
+                : Optional.empty();
+
+        // when
+        final Stream<Integer> flatMappedStream = stream.flatMapOptional(f);
+
+        // then
+        assertArrayEquals(
+            new Object[]{ 3, 6, 9, 12, 15, 18, 21 },
+            flatMappedStream.take(7).toArray()
+        );
+    }
+
+    @Test
     public void testZipping() {
         // given
         final Stream<Integer> aStream = Streams.from(1);
-        final Stream<Character> bStream = Streams.of(ArrayUtils.toObject("abcdefghijklmnopqrstuvwxyz".toCharArray()));
+        final Stream<Character> bStream = Streams.ofNullable(ArrayUtils.toObject("abcdefghijklmnopqrstuvwxyz".toCharArray()));
 
         // when
         final Stream<Pair<Integer, Character>> pairedStream = aStream.zip(bStream);
@@ -268,7 +321,7 @@ public class StreamTest {
     @Test
     public void testZippingWithIndex() {
         // given
-        final Stream<Character> stream = Streams.of(ArrayUtils.toObject("abcdefghijklmnopqrstuvwxyz".toCharArray()));
+        final Stream<Character> stream = Streams.ofNullable(ArrayUtils.toObject("abcdefghijklmnopqrstuvwxyz".toCharArray()));
 
         // when
         final Stream<Pair<Character, Integer>> pairedWithIndex = stream.zipWithIndex();
@@ -276,7 +329,7 @@ public class StreamTest {
         // then
         assertTrue(
             pairedWithIndex.corresponds(
-                Streams.of(
+                Streams.ofNullable(
                     Pair.of('a', 0),
                     Pair.of('b', 1),
                     Pair.of('c', 2),
@@ -308,17 +361,17 @@ public class StreamTest {
 
         assertEquals(
             "[ 0, 1 ]",
-            Streams.of(0, 1).toString()
+            Streams.ofNullable(0, 1).toString()
         );
 
         assertEquals(
             "[ 0, 1, 2 ]",
-            Streams.of(0, 1, 2).toString()
+            Streams.ofNullable(0, 1, 2).toString()
         );
 
         assertEquals(
             "[ 0, 1, 2, ...]",
-            Streams.of(0, 1, 2, 3).toString()
+            Streams.ofNullable(0, 1, 2, 3).toString()
         );
     }
 
@@ -336,7 +389,7 @@ public class StreamTest {
 
     private Stream<Integer> fibonacci() {
         return Streams
-            .of(1, 1)
+            .ofNullable(1, 1)
             .append(() ->
                 fibonacciStream
                     .zip(fibonacciStream.getTail())

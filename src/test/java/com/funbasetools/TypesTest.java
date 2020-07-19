@@ -72,10 +72,11 @@ public class TypesTest {
 
         // then
         assertNotNull(array);
-        assertEquals(3, array.length);
+        assertEquals(4, array.length);
         assertEquals("str1", array[0]);
         assertEquals("str2", array[1]);
-        assertEquals("str3", array[2]);
+        assertNull(array[2]);
+        assertEquals("str3", array[3]);
     }
 
     @Test

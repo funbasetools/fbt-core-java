@@ -19,7 +19,7 @@ public class TableDrawingInfo {
 
         final List<Integer> columnLengths = new ArrayList<>();
 
-        return Streams.of(data)
+        return Streams.ofNullable(data)
             .foldLeftWithIndex(
                 TableDrawingInfo.builder().data(dataStrings),
                 (builder, row, rowIdx) -> {
@@ -30,7 +30,7 @@ public class TableDrawingInfo {
 
                     final int rowCount = rowIdx + 1;
 
-                    return Streams.of(row)
+                    return Streams.ofNullable(row)
                         .foldLeftWithIndex(builder, (b, cell, colIdx) -> {
                             final String cellString = Optional.ofNullable(cell)
                                 .map(Object::toString)

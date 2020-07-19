@@ -1,4 +1,4 @@
-package com.funbasetools.collections.internal;
+package com.funbasetools.collections.impl;
 
 import com.funbasetools.collections.Stream;
 import java.util.Optional;
