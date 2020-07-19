@@ -61,18 +61,18 @@ class MyClass {
         final Stream<Integer> evens = naturals.filter(i -> i % 2 == 0);
         final Stream<Integer> odds = naturals.filter(i -> i % 2 != 0);
 
-        assert evens.corresponds(Streams.ofNullable(2, 4, 6, 8, 10, 12, 14, 16, 18, 20));
-        assert odds.corresponds(Streams.ofNullable(1, 3, 5, 7, 9, 11, 13, 15, 17, 19));
+        assert evens.corresponds(Streams.of(2, 4, 6, 8, 10, 12, 14, 16, 18, 20));
+        assert odds.corresponds(Streams.of(1, 3, 5, 7, 9, 11, 13, 15, 17, 19));
     }
     
     public void testFactorial() {
         assert factorial
-                .corresponds(Streams.ofNullable(1, 2, 6, 24, 120, 720, 5040, 40320, 362880));
+                .corresponds(Streams.of(1, 2, 6, 24, 120, 720, 5040, 40320, 362880));
     }
     
     public void testFibonacci() {
         assert factorialStream
-                .corresponds(Streams.ofNullable(1, 1, 2, 3, 5, 8, 13, 21, 34));
+                .corresponds(Streams.of(1, 1, 2, 3, 5, 8, 13, 21, 34));
     }
 
     // private methods    
