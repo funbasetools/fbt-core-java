@@ -1,9 +1,31 @@
 package com.funbasetools;
 
+import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
 public final class BytesUtil {
+
+    public static byte[] join(final byte separator, final byte[]...byteArrays) {
+        return join(new byte[] { separator }, byteArrays);
+    }
+
+    public static byte[] join(final byte[] separator, final byte[]...byteArrays) {
+
+        final var byteArrayOutputStream = new ByteArrayOutputStream();
+        for (int i = 0; i < byteArrays.length; i++) {
+            final int idx = i;
+            final byte[] bytes = byteArrays[i];
+            Try.of(() -> {
+                if (idx > 0) {
+                    byteArrayOutputStream.write(separator);
+                }
+                byteArrayOutputStream.write(bytes);
+            });
+        }
+
+        return byteArrayOutputStream.toByteArray();
+    }
 
     public static int indexOf(final byte b, final byte[] bytes) {
         return indexOf(b, bytes, 0);
