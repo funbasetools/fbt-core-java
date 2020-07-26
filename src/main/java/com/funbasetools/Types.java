@@ -77,8 +77,28 @@ public final class Types {
         return result;
     }
 
-    public static <T> boolean is(final Class<T> type, Object obj) {
+    public static <T> boolean is(final Class<T> type, final Object obj) {
         return allNonNull(type, obj) && type.isAssignableFrom(obj.getClass());
+    }
+
+    public static <A, B> boolean isTuple(final Class<A> aClass,
+                                         final Class<B> bClass,
+                                         final Object obj) {
+        if (is(Map.Entry.class, obj)) {
+            final Map.Entry<?, ?> tuple = (Map.Entry<?, ?>)obj;
+            return is(aClass, tuple.getKey()) && is(bClass, tuple.getValue());
+        }
+
+        return false;
+    }
+
+    public static <T> boolean isSuccess(final Class<T> resultType,
+                                        final Object obj) {
+        return is(Try.class, obj)
+            && ((Try<?>)obj)
+                .toOptional()
+                .filter(res -> Types.is(resultType, res))
+                .isPresent();
     }
 
     public static boolean isArray(final Object obj) {
