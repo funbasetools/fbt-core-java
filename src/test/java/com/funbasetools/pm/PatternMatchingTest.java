@@ -1,82 +1,95 @@
 package com.funbasetools.pm;
 
+import static com.funbasetools.pm.patterns.Patterns.eq;
+import static com.funbasetools.pm.patterns.Patterns.nul;
+import static com.funbasetools.pm.patterns.Patterns.ofType;
+import static com.funbasetools.pm.patterns.Patterns.pair;
+import static com.funbasetools.pm.patterns.Patterns.succ;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
 import com.funbasetools.Try;
-import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 
 public class PatternMatchingTest {
 
     @Test(expected = NotMatchingPatternFoundException.class)
-    public void testGetWithoutPatternsThrowsException() {
+    public void testGetWithoutStatementsThrowsException() {
         // given
         final Object str = "some text";
 
         // then
-        Matcher
-            .when(str)
+        Match.when(str)
             .get();
     }
 
     @Test
-    public void testOrElseWithoutPatternsReturnsOrElse() {
+    public void testOrElseWithoutStatementsReturnsOrElseResult() {
         // given
         final Object str = "some text";
 
         // when
-        final Object res = Matcher
+        final Object res = Match
             .when(str)
-            .orElse(() -> 10)
-            .get();
+            .orElse(() -> 10);
 
         // then
         assertSame(10, res);
     }
 
     @Test
-    public void testIsEqualsPatternWhenExprIsEquals() {
+    public void testIsEqualsStatementWhenExprMatches() {
         // given
         final Object str = "some text";
 
         // then
         assertSame(
             10,
-            Matcher
+            Match
                 .when(str)
-                .is("some text").then(() -> 10)
+                .is(eq("some text")).then(s -> 10)
                 .orElse(() -> 20)
-                .get()
         );
-    }
-
-    @Test
-    public void testIsNullPatternWhenExprIsNull() {
         assertSame(
             10,
-            Matcher
-                .when(null)
-                .isNull().then(() -> 10)
-                .orElse(() -> 20)
+            Match
+                .when(str)
+                .is(eq("some text")).then(s -> 10)
                 .get()
         );
     }
 
     @Test
-    public void testIsEqualsPatternWhenExprIsDifferent() {
+    public void testIsNullStatementsWhenExprMatches() {
+        assertSame(
+            10,
+            Match
+                .when(null)
+                .is(nul()).then(ignored -> 10)
+                .orElse(() -> 20)
+        );
+        assertSame(
+            10,
+            Match
+                .when(null)
+                .is(nul()).then(ignored -> 10)
+                .get()
+        );
+    }
+
+    @Test
+    public void testIsEqualsStatementWhenExprDoesNotMatch() {
         // given
         final Object str = "some text";
 
         // then
         assertSame(
             20,
-            Matcher
+            Match
                 .when(str)
-                .is("another text").then(() -> 10)
+                .is(eq("another text")).then(s -> 10)
                 .orElse(() -> 20)
-                .get()
         );
     }
 
@@ -88,11 +101,10 @@ public class PatternMatchingTest {
         // then
         assertSame(
             9, // length of str
-            Matcher
+            Match
                 .when(str)
-                .is(String.class).then(String::length)
+                .is(ofType(String.class)).then(String::length)
                 .orElse(() -> 20)
-                .get()
         );
     }
 
@@ -104,11 +116,10 @@ public class PatternMatchingTest {
         // then
         assertSame(
             20, // or else
-            Matcher
+            Match
                 .when(str)
-                .is(Integer.class).then(v -> v + 1)
+                .is(ofType(Integer.class)).then(v -> v + 1)
                 .orElse(() -> 20)
-                .get()
         );
     }
 
@@ -120,10 +131,16 @@ public class PatternMatchingTest {
         // then
         assertSame(
             9, // length of str
-            Matcher
+            Match
                 .when(str)
-                .is(String.class).and(s -> s.startsWith("some")).then(String::length)
+                .is(ofType(String.class)).and(s -> s.startsWith("some")).then(String::length)
                 .orElse(() -> 20)
+        );
+        assertSame(
+            9, // length of str
+            Match
+                .when(str)
+                .is(ofType(String.class)).and(s -> s.startsWith("some")).then(String::length)
                 .get()
         );
     }
@@ -136,11 +153,10 @@ public class PatternMatchingTest {
         // then
         assertSame(
             20, // orElse
-            Matcher
+            Match
                 .when(str)
-                .is(String.class).and(s -> s.startsWith("hello")).then(String::length)
+                .is(ofType(String.class)).and(s -> s.startsWith("hello")).then(String::length)
                 .orElse(() -> 20)
-                .get()
         );
     }
 
@@ -152,11 +168,10 @@ public class PatternMatchingTest {
         // then
         assertSame(
             9,
-            Matcher
+            Match
                 .when(str)
-                .isSuccess(String.class).then(String::length)
+                .is(succ(ofType(String.class))).then(String::length)
                 .orElse(() -> 20)
-                .get()
         );
     }
 
@@ -168,11 +183,10 @@ public class PatternMatchingTest {
         // then
         assertSame(
             20,
-            Matcher
+            Match
                 .when(str)
-                .isSuccess(Integer.class).then(a -> 10)
+                .is(succ(ofType(Integer.class))).then(a -> 10)
                 .orElse(() -> 20)
-                .get()
         );
     }
 
@@ -184,11 +198,10 @@ public class PatternMatchingTest {
         // then
         assertSame(
             10,
-            Matcher
+            Match
                 .when(str)
-                .isSuccess("some text").then(() -> 10)
+                .is(succ(eq("some text"))).then(s -> 10)
                 .orElse(() -> 20)
-                .get()
         );
     }
 
@@ -200,11 +213,10 @@ public class PatternMatchingTest {
         // then
         assertSame(
             20,
-            Matcher
+            Match
                 .when(str)
-                .isSuccess("another text").then(() -> 10)
+                .is(succ(eq("another text"))).then(s -> 10)
                 .orElse(() -> 20)
-                .get()
         );
     }
 
@@ -216,11 +228,10 @@ public class PatternMatchingTest {
         // then
         assertEquals(
             "some text + 100",
-            Matcher
+            Match
                 .when(tuple)
-                .isTuple(String.class, Integer.class).then((l, r) -> l + " + " + r)
+                .is(pair(ofType(String.class), ofType(Integer.class))).then((l, r) -> l + " + " + r)
                 .orElse(() -> "or else text")
-                .get()
         );
     }
 
@@ -232,11 +243,10 @@ public class PatternMatchingTest {
         // then
         assertEquals(
             "or else text",
-            Matcher
+            Match
                 .when(tuple)
-                .isTuple(String.class, Long.class).then((l, r) -> l + " + " + r)
+                .is(pair(ofType(String.class), ofType(Long.class))).then((l, r) -> l + " + " + r)
                 .orElse(() -> "or else text")
-                .get()
         );
     }
 
@@ -248,11 +258,10 @@ public class PatternMatchingTest {
         // then
         assertEquals(
             "some text",
-            Matcher
+            Match
                 .when(tuple)
-                .isTuple(String.class, 100).then(Function.identity())
+                .is(pair(ofType(String.class), eq(100))).then((s, v) -> s)
                 .orElse(() -> "or else text")
-                .get()
         );
     }
 
@@ -264,27 +273,24 @@ public class PatternMatchingTest {
         // then
         assertEquals(
             "or else text",
-            Matcher
+            Match
                 .when(tuple)
-                .isTuple(String.class, 0).then(Function.identity())
+                .isTuple(String.class, 0).then((s, v) -> s)
                 .orElse(() -> "or else text")
-                .get()
         );
         assertEquals(
             "or else text",
-            Matcher
+            Match
                 .when(tuple)
-                .isTuple(Integer.class, 100).then(Function.identity())
+                .isTuple(Integer.class, 100).then((v1, v2) -> v1)
                 .orElse(() -> "or else text")
-                .get()
         );
         assertEquals(
             "or else text",
-            Matcher
+            Match
                 .when(tuple)
-                .isTuple(Integer.class, 0).then(Function.identity())
+                .isTuple(Integer.class, 0).then((v1, v2) -> v1)
                 .orElse(() -> "or else text")
-                .get()
         );
     }
 
@@ -296,11 +302,10 @@ public class PatternMatchingTest {
         // then
         assertEquals(
             100,
-            Matcher
+            Match
                 .when(tuple)
-                .isTuple("some text", Integer.class).then(Function.identity())
+                .isTuple("some text", Integer.class).then((s, v) -> v)
                 .orElse(() -> 0)
-                .get()
         );
     }
 
@@ -312,27 +317,24 @@ public class PatternMatchingTest {
         // then
         assertEquals(
             0,
-            Matcher
+            Match
                 .when(tuple)
-                .isTuple("some other text", Integer.class).then(Function.identity())
+                .isTuple("some other text", Integer.class).then((s, v) -> v)
                 .orElse(() -> 0)
-                .get()
         );
         assertEquals(
             "or else text",
-            Matcher
+            Match
                 .when(tuple)
-                .isTuple("some text", String.class).then(Function.identity())
+                .isTuple("some text", String.class).then((s1, s2) -> s2)
                 .orElse(() -> "or else text")
-                .get()
         );
         assertEquals(
             "or else text",
-            Matcher
+            Match
                 .when(tuple)
-                .isTuple("some other text", String.class).then(Function.identity())
+                .isTuple("some other text", String.class).then((s1, s2) -> s2)
                 .orElse(() -> "or else text")
-                .get()
         );
     }
 
@@ -344,11 +346,10 @@ public class PatternMatchingTest {
         // then
         assertEquals(
             "then text",
-            Matcher
+            Match
                 .when(tuple)
-                .isTuple("some text", 100).then(() -> "then text")
+                .isTuple("some text", 100).then((s, v) -> "then text")
                 .orElse(() -> "or else text")
-                .get()
         );
     }
 
@@ -360,27 +361,24 @@ public class PatternMatchingTest {
         // then
         assertEquals(
             "or else text",
-            Matcher
+            Match
                 .when(tuple)
-                .isTuple("some other text", 100).then(() -> "then text")
+                .isTuple("some other text", 100).then((s, v) -> "then text")
                 .orElse(() -> "or else text")
-                .get()
         );
         assertEquals(
             "or else text",
-            Matcher
+            Match
                 .when(tuple)
-                .isTuple("some text", 0).then(() -> "then text")
+                .isTuple("some text", 0).then((s, v) -> "then text")
                 .orElse(() -> "or else text")
-                .get()
         );
         assertEquals(
             "or else text",
-            Matcher
+            Match
                 .when(tuple)
-                .isTuple("some other text", 0).then(() -> "then text")
+                .isTuple("some other text", 0).then((s, v) -> "then text")
                 .orElse(() -> "or else text")
-                .get()
         );
     }
 }

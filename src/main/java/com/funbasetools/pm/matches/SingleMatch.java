@@ -1,0 +1,32 @@
+package com.funbasetools.pm.matches;
+
+import com.funbasetools.pm.statements.CompletedStatement;
+import com.funbasetools.pm.statements.MatchStatement;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+public class SingleMatch<EXPR, A, R> implements SingleResult<EXPR, A, R> {
+
+    private final EXPR expr;
+    private final A arg;
+
+    public SingleMatch(final EXPR expr, final A arg) {
+        this.expr = expr;
+        this.arg = arg;
+    }
+
+    @Override
+    public MatchStatement<EXPR, R> then(final Function<A, R> f) {
+        final R res = f.apply(arg);
+        return new CompletedStatement<>(res);
+    }
+
+    @Override
+    public SingleResult<EXPR, A, R> and(final Predicate<A> p) {
+        if (p.test(arg)) {
+            return this;
+        }
+
+        return new SingleMismatch<>(expr);
+    }
+}
