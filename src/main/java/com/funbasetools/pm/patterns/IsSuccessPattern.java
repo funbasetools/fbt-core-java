@@ -1,31 +1,15 @@
 package com.funbasetools.pm.patterns;
 
-import com.funbasetools.Try;
-import com.funbasetools.Types;
-import java.util.Optional;
+public class IsSuccessPattern extends IsSuccessPatternBase implements Pattern {
 
-public class IsSuccessPattern<A> implements SinglePattern<A> {
+    private final Pattern pattern;
 
-    private final SinglePattern<A> pattern;
-
-    public IsSuccessPattern(SinglePattern<A> pattern) {
+    public IsSuccessPattern(final Pattern pattern) {
         this.pattern = pattern;
     }
 
     @Override
-    public boolean match(final Object expr) {
-        return Optional
-            .<Try<?>>ofNullable(Types.as(Try.class, expr))
-            .flatMap(Try::toOptional)
-            .filter(pattern::match)
-            .isPresent();
-    }
-
-    @Override
-    public A getMatchedArg(final Object expr) {
-        return ((Try<?>)expr)
-            .toOptional()
-            .map(pattern::getMatchedArg)
-            .orElse(null);
+    protected boolean patternMatch(Object expr) {
+        return pattern.match(expr);
     }
 }

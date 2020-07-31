@@ -7,7 +7,11 @@ import com.funbasetools.pm.matches.DoubleMismatch;
 import com.funbasetools.pm.matches.SingleResult;
 import com.funbasetools.pm.matches.SingleMatch;
 import com.funbasetools.pm.matches.SingleMismatch;
+import com.funbasetools.pm.matches.VoidMatch;
+import com.funbasetools.pm.matches.VoidMismatch;
+import com.funbasetools.pm.matches.VoidResult;
 import com.funbasetools.pm.patterns.DoublePattern;
+import com.funbasetools.pm.patterns.Pattern;
 import com.funbasetools.pm.patterns.SinglePattern;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -28,6 +32,15 @@ public class ContinuingStatement<EXPR, R> implements MatchStatement<EXPR, R> {
     @Override
     public Optional<R> toOptional() {
         return Optional.empty();
+    }
+
+    @Override
+    public VoidResult<EXPR, R> is(final Pattern pattern) {
+        if (pattern.match(expr)) {
+            return new VoidMatch<>();
+        }
+
+        return new VoidMismatch<>(expr);
     }
 
     @Override

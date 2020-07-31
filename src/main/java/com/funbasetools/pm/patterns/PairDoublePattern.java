@@ -3,12 +3,12 @@ package com.funbasetools.pm.patterns;
 import com.funbasetools.Types;
 import java.util.Map;
 
-public class PairPattern<A, B> implements DoublePattern<A, B> {
+public class PairDoublePattern<A, B> implements DoublePattern<A, B> {
 
     private final SinglePattern<A> aPattern;
     private final SinglePattern<B> bPattern;
 
-    PairPattern(final SinglePattern<A> aPattern, final SinglePattern<B> bPattern) {
+    PairDoublePattern(final SinglePattern<A> aPattern, final SinglePattern<B> bPattern) {
         this.aPattern = aPattern;
         this.bPattern = bPattern;
     }

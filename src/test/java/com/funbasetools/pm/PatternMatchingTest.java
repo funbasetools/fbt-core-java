@@ -48,14 +48,14 @@ public class PatternMatchingTest {
             10,
             Match
                 .when(str)
-                .is(eq("some text")).then(s -> 10)
+                .is(eq("some text")).then(() -> 10)
                 .orElse(() -> 20)
         );
         assertSame(
             10,
             Match
                 .when(str)
-                .is(eq("some text")).then(s -> 10)
+                .is(eq("some text")).then(() -> 10)
                 .get()
         );
     }
@@ -66,14 +66,14 @@ public class PatternMatchingTest {
             10,
             Match
                 .when(null)
-                .is(nul()).then(ignored -> 10)
+                .is(nul()).then(() -> 10)
                 .orElse(() -> 20)
         );
         assertSame(
             10,
             Match
                 .when(null)
-                .is(nul()).then(ignored -> 10)
+                .is(nul()).then(() -> 10)
                 .get()
         );
     }
@@ -88,7 +88,7 @@ public class PatternMatchingTest {
             20,
             Match
                 .when(str)
-                .is(eq("another text")).then(s -> 10)
+                .is(eq("another text")).then(() -> 10)
                 .orElse(() -> 20)
         );
     }
@@ -200,7 +200,7 @@ public class PatternMatchingTest {
             10,
             Match
                 .when(str)
-                .is(succ(eq("some text"))).then(s -> 10)
+                .is(succ(eq("some text"))).then(() -> 10)
                 .orElse(() -> 20)
         );
     }
@@ -215,7 +215,7 @@ public class PatternMatchingTest {
             20,
             Match
                 .when(str)
-                .is(succ(eq("another text"))).then(s -> 10)
+                .is(succ(eq("another text"))).then(() -> 10)
                 .orElse(() -> 20)
         );
     }
@@ -260,7 +260,7 @@ public class PatternMatchingTest {
             "some text",
             Match
                 .when(tuple)
-                .is(pair(ofType(String.class), eq(100))).then((s, v) -> s)
+                .is(pair(ofType(String.class), eq(100))).then(s -> s)
                 .orElse(() -> "or else text")
         );
     }
@@ -275,21 +275,21 @@ public class PatternMatchingTest {
             "or else text",
             Match
                 .when(tuple)
-                .isTuple(String.class, 0).then((s, v) -> s)
+                .isTuple(String.class, 0).then(s -> s)
                 .orElse(() -> "or else text")
         );
         assertEquals(
             "or else text",
             Match
                 .when(tuple)
-                .isTuple(Integer.class, 100).then((v1, v2) -> v1)
+                .isTuple(Integer.class, 100).then(v -> v)
                 .orElse(() -> "or else text")
         );
         assertEquals(
             "or else text",
             Match
                 .when(tuple)
-                .isTuple(Integer.class, 0).then((v1, v2) -> v1)
+                .isTuple(Integer.class, 0).then(v -> v)
                 .orElse(() -> "or else text")
         );
     }
@@ -304,7 +304,7 @@ public class PatternMatchingTest {
             100,
             Match
                 .when(tuple)
-                .isTuple("some text", Integer.class).then((s, v) -> v)
+                .isTuple("some text", Integer.class).then(v -> v)
                 .orElse(() -> 0)
         );
     }
@@ -319,21 +319,21 @@ public class PatternMatchingTest {
             0,
             Match
                 .when(tuple)
-                .isTuple("some other text", Integer.class).then((s, v) -> v)
+                .isTuple("some other text", Integer.class).then(v -> v)
                 .orElse(() -> 0)
         );
         assertEquals(
             "or else text",
             Match
                 .when(tuple)
-                .isTuple("some text", String.class).then((s1, s2) -> s2)
+                .isTuple("some text", String.class).then(s -> s)
                 .orElse(() -> "or else text")
         );
         assertEquals(
             "or else text",
             Match
                 .when(tuple)
-                .isTuple("some other text", String.class).then((s1, s2) -> s2)
+                .isTuple("some other text", String.class).then(s -> s)
                 .orElse(() -> "or else text")
         );
     }
@@ -348,7 +348,7 @@ public class PatternMatchingTest {
             "then text",
             Match
                 .when(tuple)
-                .isTuple("some text", 100).then((s, v) -> "then text")
+                .isTuple("some text", 100).then(() -> "then text")
                 .orElse(() -> "or else text")
         );
     }
@@ -363,21 +363,21 @@ public class PatternMatchingTest {
             "or else text",
             Match
                 .when(tuple)
-                .isTuple("some other text", 100).then((s, v) -> "then text")
+                .isTuple("some other text", 100).then(() -> "then text")
                 .orElse(() -> "or else text")
         );
         assertEquals(
             "or else text",
             Match
                 .when(tuple)
-                .isTuple("some text", 0).then((s, v) -> "then text")
+                .isTuple("some text", 0).then(() -> "then text")
                 .orElse(() -> "or else text")
         );
         assertEquals(
             "or else text",
             Match
                 .when(tuple)
-                .isTuple("some other text", 0).then((s, v) -> "then text")
+                .isTuple("some other text", 0).then(() -> "then text")
                 .orElse(() -> "or else text")
         );
     }
