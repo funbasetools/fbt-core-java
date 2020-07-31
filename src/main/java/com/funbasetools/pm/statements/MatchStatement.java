@@ -14,41 +14,41 @@ import com.funbasetools.pm.patterns.SinglePattern;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public interface MatchStatement<EXPR, R> {
+public interface MatchStatement<R> {
 
     R get();
 
     Optional<R> toOptional();
 
-    VoidResult<EXPR, R> is(final Pattern pattern);
+    VoidResult<R> is(final Pattern pattern);
 
-    <A> SingleResult<EXPR, A, R> is(final SinglePattern<A> pattern);
+    <A> SingleResult<A, R> is(final SinglePattern<A> pattern);
 
-    <A, B> DoubleResult<EXPR, A, B, R> is(final DoublePattern<A, B> pattern);
+    <A, B> DoubleResult<A, B, R> is(final DoublePattern<A, B> pattern);
 
     R orElse(final Supplier<R> supplier);
 
-    default <A> SingleResult<EXPR, A, R> isSuccess(final Class<A> aClass) {
+    default <A> SingleResult<A, R> isSuccess(final Class<A> aClass) {
         return is(succ(ofType(aClass)));
     }
 
-    default <A> VoidResult<EXPR, R> isSuccess(final A obj) {
+    default <A> VoidResult<R> isSuccess(final A obj) {
         return is(succ(eq(obj)));
     }
 
-    default <A, B> DoubleResult<EXPR, A, B, R> isTuple(final Class<A> aClass, final Class<B> bClass) {
+    default <A, B> DoubleResult<A, B, R> isTuple(final Class<A> aClass, final Class<B> bClass) {
         return is(pair(ofType(aClass), ofType(bClass)));
     }
 
-    default <A, B> SingleResult<EXPR, A, R> isTuple(final Class<A> aClass, final B bObj) {
+    default <A, B> SingleResult<A, R> isTuple(final Class<A> aClass, final B bObj) {
         return is(pair(ofType(aClass), eq(bObj)));
     }
 
-    default <A, B> SingleResult<EXPR, B, R> isTuple(final A aObj, final Class<B> bClass) {
+    default <A, B> SingleResult<B, R> isTuple(final A aObj, final Class<B> bClass) {
         return is(pair(eq(aObj), ofType(bClass)));
     }
 
-    default <A, B> VoidResult<EXPR, R> isTuple(final A aObj, final B bObj) {
+    default <A, B> VoidResult<R> isTuple(final A aObj, final B bObj) {
         return is(pair(eq(aObj), eq(bObj)));
     }
 }

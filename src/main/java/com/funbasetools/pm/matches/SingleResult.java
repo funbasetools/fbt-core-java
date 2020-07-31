@@ -4,9 +4,9 @@ import com.funbasetools.pm.statements.MatchStatement;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public interface SingleResult<EXPR, A, R> {
+public interface SingleResult<A, R> {
 
-    MatchStatement<EXPR, R> then(final Function<A, R> f);
+    MatchStatement<R> then(final Function<A, R> f);
 
-    SingleResult<EXPR, A, R> and(final Predicate<A> p);
+    SingleResult<A, R> and(final Predicate<A> p);
 }

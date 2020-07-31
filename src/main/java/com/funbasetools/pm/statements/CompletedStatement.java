@@ -12,7 +12,7 @@ import com.funbasetools.pm.patterns.SinglePattern;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public class CompletedStatement<EXPR, R> implements MatchStatement<EXPR, R> {
+public class CompletedStatement<EXPR, R> implements MatchStatement<R> {
 
     private final R result;
 
@@ -31,17 +31,17 @@ public class CompletedStatement<EXPR, R> implements MatchStatement<EXPR, R> {
     }
 
     @Override
-    public VoidResult<EXPR, R> is(final Pattern pattern) {
+    public VoidResult<R> is(final Pattern pattern) {
         return new VoidBypassed<>(result);
     }
 
     @Override
-    public <A> SingleResult<EXPR, A, R> is(final SinglePattern<A> pattern) {
+    public <A> SingleResult<A, R> is(final SinglePattern<A> pattern) {
         return new SingleBypassed<>(result);
     }
 
     @Override
-    public <A, B> DoubleResult<EXPR, A, B, R> is(final DoublePattern<A, B> pattern) {
+    public <A, B> DoubleResult<A, B, R> is(final DoublePattern<A, B> pattern) {
         return new DoubleBypassed<>(result);
     }
 

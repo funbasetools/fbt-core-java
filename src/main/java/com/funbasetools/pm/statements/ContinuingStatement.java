@@ -16,7 +16,7 @@ import com.funbasetools.pm.patterns.SinglePattern;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public class ContinuingStatement<EXPR, R> implements MatchStatement<EXPR, R> {
+public class ContinuingStatement<EXPR, R> implements MatchStatement<R> {
 
     private final EXPR expr;
 
@@ -35,7 +35,7 @@ public class ContinuingStatement<EXPR, R> implements MatchStatement<EXPR, R> {
     }
 
     @Override
-    public VoidResult<EXPR, R> is(final Pattern pattern) {
+    public VoidResult<R> is(final Pattern pattern) {
         if (pattern.match(expr)) {
             return new VoidMatch<>();
         }
@@ -44,7 +44,7 @@ public class ContinuingStatement<EXPR, R> implements MatchStatement<EXPR, R> {
     }
 
     @Override
-    public <A> SingleResult<EXPR, A, R> is(final SinglePattern<A> pattern) {
+    public <A> SingleResult<A, R> is(final SinglePattern<A> pattern) {
         if (pattern.match(expr)) {
             final A arg = pattern.getMatchedArg(expr);
             return new SingleMatch<>(expr, arg);
@@ -54,7 +54,7 @@ public class ContinuingStatement<EXPR, R> implements MatchStatement<EXPR, R> {
     }
 
     @Override
-    public <A, B> DoubleResult<EXPR, A, B, R> is(final DoublePattern<A, B> pattern) {
+    public <A, B> DoubleResult<A, B, R> is(final DoublePattern<A, B> pattern) {
         if (pattern.match(expr)) {
             final A aArg = pattern.getFirstMatchedArg(expr);
             final B bArg = pattern.getSecondMatchedArg(expr);
