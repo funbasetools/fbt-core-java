@@ -6,11 +6,11 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public final class Match {
 
-    public static <EXPR, R> MatchStatement<EXPR, R> when(final EXPR expr) {
+    public static <R> MatchStatement<R> when(final Object expr) {
         return new ContinuingStatement<>(expr);
     }
 
-    public static <A, B, R> MatchStatement<Pair<A, B>, R> when(final A left, final B right) {
+    public static <R> MatchStatement<R> when(final Object left, final Object right) {
         return when(Pair.of(left, right));
     }
 

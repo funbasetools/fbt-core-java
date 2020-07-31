@@ -5,7 +5,7 @@ import com.funbasetools.pm.statements.MatchStatement;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 
-public class DoubleMatch<EXPR, A, B, R> implements DoubleResult<EXPR, A, B, R> {
+public class DoubleMatch<EXPR, A, B, R> implements DoubleResult<A, B, R> {
 
     private final EXPR expr;
     private final A aArg;
@@ -18,13 +18,13 @@ public class DoubleMatch<EXPR, A, B, R> implements DoubleResult<EXPR, A, B, R> {
     }
 
     @Override
-    public MatchStatement<EXPR, R> then(final BiFunction<A, B, R> f) {
+    public MatchStatement<R> then(final BiFunction<A, B, R> f) {
         final R res = f.apply(aArg, bArg);
         return new CompletedStatement<>(res);
     }
 
     @Override
-    public DoubleResult<EXPR, A, B, R> and(final BiPredicate<A, B> p) {
+    public DoubleResult<A, B, R> and(final BiPredicate<A, B> p) {
         if (p.test(aArg, bArg)) {
             return this;
         }

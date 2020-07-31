@@ -5,7 +5,7 @@ import com.funbasetools.pm.statements.MatchStatement;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class SingleBypassed<EXPR, A, R> implements SingleResult<EXPR, A, R> {
+public class SingleBypassed<EXPR, A, R> implements SingleResult<A, R> {
 
     private final R result;
 
@@ -14,12 +14,12 @@ public class SingleBypassed<EXPR, A, R> implements SingleResult<EXPR, A, R> {
     }
 
     @Override
-    public MatchStatement<EXPR, R> then(final Function<A, R> f) {
+    public MatchStatement<R> then(final Function<A, R> f) {
         return new CompletedStatement<>(result);
     }
 
     @Override
-    public SingleResult<EXPR, A, R> and(final Predicate<A> p) {
+    public SingleResult<A, R> and(final Predicate<A> p) {
         return this;
     }
 }
