@@ -4,7 +4,10 @@ import com.funbasetools.pm.matches.DoubleResult;
 import com.funbasetools.pm.matches.DoubleBypassed;
 import com.funbasetools.pm.matches.SingleResult;
 import com.funbasetools.pm.matches.SingleBypassed;
+import com.funbasetools.pm.matches.VoidBypassed;
+import com.funbasetools.pm.matches.VoidResult;
 import com.funbasetools.pm.patterns.DoublePattern;
+import com.funbasetools.pm.patterns.Pattern;
 import com.funbasetools.pm.patterns.SinglePattern;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -25,6 +28,11 @@ public class CompletedStatement<EXPR, R> implements MatchStatement<EXPR, R> {
     @Override
     public Optional<R> toOptional() {
         return Optional.ofNullable(result);
+    }
+
+    @Override
+    public VoidResult<EXPR, R> is(final Pattern pattern) {
+        return new VoidBypassed<>(result);
     }
 
     @Override
