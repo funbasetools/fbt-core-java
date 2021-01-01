@@ -7,7 +7,7 @@ import java.net.InetAddress;
 
 public final class NetUtil {
 
-    private static final Lazy<Try<byte[]>> addressBytes = Lazy.of(
+    private static final Lazy<Try<byte[]>> addressBytes = Lazy.notSyncOf(
         () -> Try.of(() -> InetAddress.getLocalHost().getAddress())
     );
 

@@ -10,7 +10,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.junit.Test;
 
@@ -18,91 +21,116 @@ public class LazyTest {
 
     @Test
     public void testGet() {
-        // given
-        final Object res = new Object();
+        testAllLazyVariants(lazyBuilder -> {
+            // given
+            final Object expectedValue = new Object();
 
-        // then
-        assertEquals(
-            res,
-            Lazy.of(() -> res).get()
-        );
+            // when
+            final Lazy<?> lazy = lazyBuilder.apply(() -> expectedValue);
+
+            // then
+            assertEquals(expectedValue, lazy.get());
+        });
     }
 
     @Test
     public void testIsComputed() {
-        // given
-        final Lazy<Integer> lazyInt = Lazy.of(() -> 10);
+        testAllLazyVariants(lazyBuilder -> {
+            // given
+            final Lazy<?> lazy = lazyBuilder.apply(Object::new);
 
-        // when
-        lazyInt.get();
+            // when
+            lazy.get();
 
-        // then
-        assertTrue(lazyInt.isComputed());
+            // then
+            assertTrue(lazy.isComputed());
+        });
     }
 
     @Test
     public void testIsNotComputed() {
-        // given
-        final Lazy<Integer> lazyInt = Lazy.of(() -> 10);
+        testAllLazyVariants(lazyBuilder -> {
+            // given
+            final Lazy<?> lazy = lazyBuilder.apply(Object::new);
 
-        // then
-        assertFalse(lazyInt.isComputed());
+            // then
+            assertFalse(lazy.isComputed());
+        });
     }
 
     @Test
     public void testGetIfComputed() {
-        // given
-        final Lazy<Integer> lazyInt = Lazy.of(() -> 10);
+        testAllLazyVariants(lazyBuilder -> {
+            // given
+            final Object expectedValue = new Object();
+            final Lazy<?> lazy = lazyBuilder.apply(() -> expectedValue);
 
-        // when
-        lazyInt.get();
-        final Optional<Integer> opt = lazyInt.getIfComputed();
+            // when
+            lazy.get();
+            final Optional<?> optional = lazy.getIfComputed();
 
-        // then
-        assertTrue(opt.isPresent());
-        assertSame(10, opt.get());
+            // then
+            assertTrue(optional.isPresent());
+            assertSame(expectedValue, optional.get());
+        });
     }
 
     @Test
     public void testGetIfNotComputed() {
-        // given
-        final Lazy<Integer> lazyInt = Lazy.of(() -> 10);
+        testAllLazyVariants(lazyBuilder -> {
+            // given
+            final Lazy<?> lazy = lazyBuilder.apply(Object::new);
 
-        // when
-        final Optional<Integer> opt = lazyInt.getIfComputed();
+            // when
+            final Optional<?> optional = lazy.getIfComputed();
 
-        // then
-        assertFalse(opt.isPresent());
+            // then
+            assertFalse(optional.isPresent());
+        });
     }
 
     @Test
     public void testCallsToSupplierBeforeBeingComputed() {
-        // given
-        @SuppressWarnings("unchecked")
-        final Supplier<Integer> supplierMock = (Supplier<Integer>)mock(Supplier.class);
-        when(supplierMock.get()).thenReturn(10);
+        testAllLazyVariants(lazyBuilder -> {
+            // given
+            @SuppressWarnings("unchecked")
+            final Supplier<Object> supplierMock = mock(Supplier.class);
+            when(supplierMock.get()).thenReturn(new Object());
 
-        // when
-        Lazy.of(supplierMock).getIfComputed();
+            // when
+            lazyBuilder.apply(supplierMock).getIfComputed();
 
-        // then
-        verify(supplierMock, never()).get();
+            // then
+            verify(supplierMock, never()).get();
+        });
     }
 
     @Test
     public void testCallsToSupplierAfterBeingComputed() {
-        // given
-        @SuppressWarnings("unchecked")
-        final Supplier<Integer> supplierMock = (Supplier<Integer>)mock(Supplier.class);
-        when(supplierMock.get()).thenReturn(10);
-        final Lazy<Integer> lazyInt = Lazy.of(supplierMock);
+        testAllLazyVariants(lazyBuilder -> {
+            // given
+            @SuppressWarnings("unchecked")
+            final Supplier<Object> supplierMock = mock(Supplier.class);
+            when(supplierMock.get()).thenReturn(new Object());
+            final Lazy<?> lazy = lazyBuilder.apply(supplierMock);
 
-        // when
-        lazyInt.get();
-        lazyInt.get();
-        lazyInt.getIfComputed();
+            // when
+            lazy.get();
+            lazy.get();
+            lazy.getIfComputed();
 
-        // then
-        verify(supplierMock, times(1)).get();
+            // then
+            verify(supplierMock, times(1)).get();
+        });
+    }
+
+    private <T> void testAllLazyVariants(final Consumer<Function<Supplier<T>, Lazy<T>>> consumer) {
+        final List<Function<Supplier<T>, Lazy<T>>> lazyBuilders = Arrays.asList(
+            Lazy::notSyncOf,
+            Lazy::publicationOf,
+            Lazy::of
+        );
+
+        lazyBuilders.forEach(consumer);
     }
 }
